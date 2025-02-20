@@ -1,0 +1,20 @@
+{
+  "name": "psql_test",
+  "version": "1.0.0",
+  "description": "testing making an api that connects to a postgres database",
+  "main": "index.ts",
+  "scripts": {
+    "start": "ts-node ./main.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20",
+    "ts-node": "^10",
+    "typescript": "^5.2"
+  },
+  "moduleResolution": "node",
+  "dependencies": {
+    "postgres": "^3.4.5"
+  }
+}
