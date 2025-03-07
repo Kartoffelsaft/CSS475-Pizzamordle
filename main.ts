@@ -2,7 +2,7 @@ import { createServer, IncomingMessage, ServerResponse } from 'http';
 import sql from './db.ts';
 import fs from 'fs';
 import path from 'path';
-
+import * as dt from './datatypes.ts';
 const port = 8000;
 
 const server = createServer(async (request: IncomingMessage, response: ServerResponse) => {
@@ -52,23 +52,20 @@ server.listen(port, () => {
     console.log();
 });
 
-async function apiCall(url: URL): Promise<Object> {
+async function apiCall(url: URL): Promise<any> {
     const apiEndpoint = url.pathname.substring(url.pathname.indexOf('/', 1) + 1)
     console.log("Call of api endpoint: " + apiEndpoint);
 
     const apiFn = {
-        'people': async (args: Object) => {
-            return await sql`
-                SELECT *
-                FROM Person
-            `;
-        },
+        'create_order': async (args: URLSearchParams): Promise<Number> => {
+            let order: dt.Order = await JSON.parse(args.get('order'));
+            let phone: String | null = args.get('phone');
 
-        'person_count': async (args: Object) => {
-            return await sql`
-                SELECT COUNT(*)
-                FROM Person
-            `
+            let query = await sql`
+                SELECT 2 AS ordernumber;
+            `;
+
+            return query[0].ordernumber;
         }
     }[apiEndpoint];
 
