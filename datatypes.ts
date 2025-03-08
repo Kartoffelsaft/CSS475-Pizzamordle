@@ -23,7 +23,7 @@ export type Order = OrderLine[];
 export class PlacedOrder {
     phone?: String;
     dateOrdered: Date;
-    orderNumber: Number;
+    orderNumber: String;
 
     contents: Order;
 }
