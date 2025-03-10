@@ -25,8 +25,16 @@ const server = createServer(async (request: IncomingMessage, response: ServerRes
 
 
     } else if (url.pathname.startsWith('/api')) {
-        response.write(JSON.stringify(await apiCall(url)));
-        response.end();
+        let body = '';
+        request
+            .on('data', (chunk) => {
+                body = body + chunk;
+            })
+            .on('end', async () => {
+                let bodyJson = await JSON.parse(body);
+                response.write(JSON.stringify(await apiCall(url, bodyJson)));
+                response.end();
+            });
 
 
     } else {
@@ -52,25 +60,93 @@ server.listen(port, () => {
     console.log();
 });
 
-async function apiCall(url: URL): Promise<any> {
+async function apiCall(url: URL, body: any): Promise<any> {
     const apiEndpoint = url.pathname.substring(url.pathname.indexOf('/', 1) + 1)
     console.log("Call of api endpoint: " + apiEndpoint);
 
     const apiFn = {
-        'create_order': async (args: URLSearchParams): Promise<Number> => {
+        // TODO: dummy function
+        'create_order': async (args: URLSearchParams, body: any): Promise<String> => {
             let order: dt.Order = await JSON.parse(args.get('order'));
             let phone: String | null = args.get('phone');
 
             let query = await sql`
-                SELECT 2 AS ordernumber;
+                SELECT '2' AS ordernumber;
             `;
 
             return query[0].ordernumber;
-        }
+        },
+
+        // TODO: dummy function, implement real database connection
+        'get_order': async (args: URLSearchParams, body: any): Promise<dt.PlacedOrder> => {
+            let ordernum: String = args.get('orderNumber');
+
+            return new Promise<dt.PlacedOrder>((resolve) => {
+                resolve({
+                    phone: '420-666-6969',
+                    dateOrdered: new Date('1999-12-10 15:13:12'),
+                    orderNumber: ordernum,
+                    contents: [
+                        'breadsticks',
+                        'cookie',
+                        {
+                            dough: {
+                                type: 'regular',
+                                size: 'medium',
+                            },
+                            toppings: [
+                                'pepperoni'
+                            ],
+                            sauce: 'tomato'
+                        },
+                    ]
+                });
+            });
+        },
+
+        // TODO: dummy function, implement real database connection
+        'get_latest_ordernum': async (args: URLSearchParams, body: any): Promise<String> => {
+            let phoneNum: String | null = args.get('phone');
+            return new Promise((resolve) => resolve('2'));
+        },
+
+        // TODO: dummy function, implement real database connection
+        'get_popular_sides': async (args: URLSearchParams, body: any): Promise<dt.Popular<dt.Side>> => {
+            return new Promise((resolve) => {
+                resolve([
+                    ['cookie', 58],
+                    ['breadsticks', 33],
+                    ['2L soda', 7],
+                ]);
+            });
+        },
+
+        // TODO: dummy function, implement real database connection
+        'get_popular_toppings': async (args: URLSearchParams, body: any): Promise<dt.Popular<dt.Topping>> => {
+            return new Promise((resolve) => {
+                resolve([
+                    ['pepperoni', 101],
+                    ['mushroom', 34],
+                ]);
+            });
+        },
+
+        // TODO: dummy function, implement real database connection
+        'get_popular_dough': async (args: URLSearchParams, body: any): Promise<dt.Popular<dt.Dough>> => {
+            return new Promise((resolve) => {
+                resolve([
+                    [{type: 'regular', size: 'large'}, 43],
+                    [{type: 'regular', size: 'small'}, 33],
+                    [{type: 'stuffed', size: 'large'}, 20],
+                    [{type: 'pretzel', size: 'personal'}, 5],
+                    [{type: 'pretzel', size: 'medium'}, 1],
+                ]);
+            });
+        },
     }[apiEndpoint];
 
     if (apiFn) {
-        return await apiFn(url.searchParams);
+        return await apiFn(url.searchParams, body);
     } else {
         return undefined;
     }

@@ -27,3 +27,5 @@ export class PlacedOrder {
 
     contents: Order;
 }
+
+export type Popular<Item> =  [Item, Number][];
