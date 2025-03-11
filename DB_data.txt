@@ -1,0 +1,111 @@
+
+INSERT INTO Side (name, price) VALUES ('Garlic Bread', 3.50);
+INSERT INTO Side (name, price) VALUES ('Chicken Wings', 5.00);
+INSERT INTO Side (name, price) VALUES ('Salad', 4.00);
+INSERT INTO Side (name, price) VALUES ('Mozzarella Sticks', 4.50);
+INSERT INTO Side (name, price) VALUES ('French Fries', 3.00);
+INSERT INTO Side (name, price) VALUES ('Onion Rings', 3.25);
+INSERT INTO Side (name, price) VALUES ('Stuffed Mushrooms', 4.75);
+INSERT INTO Side (name, price) VALUES ('Jalapeno Poppers', 4.25);
+
+INSERT INTO Topping (name, price) VALUES ('Pepperoni', 1.00);
+INSERT INTO Topping (name, price) VALUES ('Mushrooms', 0.75);
+INSERT INTO Topping (name, price) VALUES ('Onions', 0.50);
+INSERT INTO Topping (name, price) VALUES ('Sausage', 1.25);
+INSERT INTO Topping (name, price) VALUES ('Bacon', 1.50);
+INSERT INTO Topping (name, price) VALUES ('Extra Cheese', 1.00);
+INSERT INTO Topping (name, price) VALUES ('Black Olives', 0.75);
+INSERT INTO Topping (name, price) VALUES ('Green Peppers', 0.50);
+INSERT INTO Topping (name, price) VALUES ('Pineapple', 0.80);
+INSERT INTO Topping (name, price) VALUES ('Spinach', 0.70);
+INSERT INTO Topping (name, price) VALUES ('Jalapenos', 0.65);
+INSERT INTO Topping (name, price) VALUES ('Anchovies', 1.00);
+INSERT INTO Topping (name, price) VALUES ('Tomatoes', 0.60);
+INSERT INTO Topping (name, price) VALUES ('Broccoli', 0.90);
+INSERT INTO Topping (name, price) VALUES ('Artichokes', 1.10);
+
+INSERT INTO DoughSize (name, diameterInches) VALUES ('Small', 10);
+INSERT INTO DoughSize (name, diameterInches) VALUES ('Medium', 12);
+INSERT INTO DoughSize (name, diameterInches) VALUES ('Large', 14);
+INSERT INTO DoughSize (name, diameterInches) VALUES ('Extra Large', 16);
+
+INSERT INTO DoughType (name, pricePerInch) VALUES ('Thin Crust', 0.10);
+INSERT INTO DoughType (name, pricePerInch) VALUES ('Thick Crust', 0.15);
+INSERT INTO DoughType (name, pricePerInch) VALUES ('Stuffed Crust', 0.20);
+INSERT INTO DoughType (name, pricePerInch) VALUES ('Gluten Free', 0.12);
+
+INSERT INTO SauceType (name, price) VALUES ('Marinara', 0.50);
+INSERT INTO SauceType (name, price) VALUES ('Alfredo', 0.75);
+INSERT INTO SauceType (name, price) VALUES ('Pesto', 0.80);
+
+INSERT INTO Sauce (sauceTypeID) VALUES (1);
+INSERT INTO Sauce (sauceTypeID) VALUES (2);
+INSERT INTO Sauce (sauceTypeID) VALUES (3);
+INSERT INTO Sauce (sauceTypeID) VALUES (1);
+
+INSERT INTO Dough (doughSizeID, doughTypeID) VALUES (1, 1);
+INSERT INTO Dough (doughSizeID, doughTypeID) VALUES (2, 2);
+INSERT INTO Dough (doughSizeID, doughTypeID) VALUES (3, 3);
+INSERT INTO Dough (doughSizeID, doughTypeID) VALUES (4, 4);
+
+INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-1234', '2025-03-01', 'ORD001');
+INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-5678', '2025-03-02', 'ORD002');
+INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-8765', '2025-03-03', 'ORD003');
+INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-4321', '2025-03-04', 'ORD004');
+INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-0001', '2025-03-05', 'ORD005');
+INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-0002', '2025-03-06', 'ORD006');
+INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-1010', '2025-03-07', 'ORD007');
+INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-2020', '2025-03-08', 'ORD008');
+
+INSERT INTO AddedSides (orderID, sideID, quantity) VALUES (1, 1, 2);
+INSERT INTO AddedSides (orderID, sideID, quantity) VALUES (1, 3, 1);
+INSERT INTO AddedSides (orderID, sideID, quantity) VALUES (2, 2, 1);
+INSERT INTO AddedSides (orderID, sideID, quantity) VALUES (3, 4, 2);
+INSERT INTO AddedSides (orderID, sideID, quantity) VALUES (4, 5, 1);
+INSERT INTO AddedSides (orderID, sideID, quantity) VALUES (5, 6, 3);
+INSERT INTO AddedSides (orderID, sideID, quantity) VALUES (6, 7, 1);
+INSERT INTO AddedSides (orderID, sideID, quantity) VALUES (6, 8, 2);
+INSERT INTO AddedSides (orderID, sideID, quantity) VALUES (7, 2, 1);
+INSERT INTO AddedSides (orderID, sideID, quantity) VALUES (7, 4, 2);
+INSERT INTO AddedSides (orderID, sideID, quantity) VALUES (8, 5, 1);
+
+INSERT INTO Pizza (orderID, doughID, sauceID, pizzaNumber) VALUES (1, 1, 1, 'PZ001');
+INSERT INTO Pizza (orderID, doughID, sauceID, pizzaNumber) VALUES (1, 2, 2, 'PZ002');
+INSERT INTO Pizza (orderID, doughID, sauceID, pizzaNumber) VALUES (2, 2, 3, 'PZ003');
+INSERT INTO Pizza (orderID, doughID, sauceID, pizzaNumber) VALUES (3, 3, 4, 'PZ004');
+INSERT INTO Pizza (orderID, doughID, sauceID, pizzaNumber) VALUES (4, 4, 1, 'PZ005');
+INSERT INTO Pizza (orderID, doughID, sauceID, pizzaNumber) VALUES (5, 1, 2, 'PZ006');
+INSERT INTO Pizza (orderID, doughID, sauceID, pizzaNumber) VALUES (5, 3, 3, 'PZ007');
+INSERT INTO Pizza (orderID, doughID, sauceID, pizzaNumber) VALUES (6, 4, 1, 'PZ008');
+INSERT INTO Pizza (orderID, doughID, sauceID, pizzaNumber) VALUES (7, 1, 2, 'PZ009');
+INSERT INTO Pizza (orderID, doughID, sauceID, pizzaNumber) VALUES (7, 2, 3, 'PZ010');
+INSERT INTO Pizza (orderID, doughID, sauceID, pizzaNumber) VALUES (8, 3, 4, 'PZ011');
+INSERT INTO Pizza (orderID, doughID, sauceID, pizzaNumber) VALUES (8, 4, 1, 'PZ012');
+
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (1, 1);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (1, 2);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (2, 4);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (2, 6);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (2, 7);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (3, 5);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (3, 8);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (4, 1);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (4, 3);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (4, 10);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (5, 2);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (5, 11);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (5, 12);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (6, 13);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (6, 14);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (7, 15);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (8, 1);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (8, 5);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (8, 6);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (9, 1);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (10, 2);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (10, 3);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (11, 4);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (11, 5);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (12, 6);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (12, 7);
+INSERT INTO AddedToppings (pizzaID, toppingID) VALUES (12, 13);
