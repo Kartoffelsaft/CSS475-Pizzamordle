@@ -31,7 +31,8 @@ const server = createServer(async (request: IncomingMessage, response: ServerRes
                 body = body + chunk;
             })
             .on('end', async () => {
-                let bodyJson = await JSON.parse(body);
+                let bodyJson = undefined;
+                try {bodyJson = await JSON.parse(body);} catch (e) {}
                 response.write(JSON.stringify(await apiCall(url, bodyJson)));
                 response.end();
             });
@@ -142,6 +143,49 @@ async function apiCall(url: URL, body: any): Promise<any> {
                     [{type: 'pretzel', size: 'medium'}, 1],
                 ]);
             });
+        },
+
+        // TODO: dummy function, implement real database connection
+        'list_available_sides': async (args: URLSearchParams, body: any): Promise<dt.Side[]> => {
+            return new Promise((resolve) => resolve([
+                'cookie',
+                '2L soda',
+                'breadsticks',
+            ]));
+        },
+        // TODO: dummy function, implement real database connection
+        'list_available_toppings': async (args: URLSearchParams, body: any): Promise<dt.Topping[]> => {
+            return new Promise((resolve) => resolve([
+                'sausage',
+                'mushroom',
+                'pepperoni',
+                'pineapple',
+            ]));
+        },
+        // TODO: dummy function, implement real database connection
+        'list_available_sauces': async (args: URLSearchParams, body: any): Promise<dt.Sauce[]> => {
+            return new Promise((resolve) => resolve([
+                'pesto',
+                'tomato',
+                'alfredo',
+            ]));
+        },
+        // TODO: dummy function, implement real database connection
+        'list_available_dough': async (args: URLSearchParams, body: any): Promise<dt.DoughType[]> => {
+            return new Promise((resolve) => resolve([
+                'regular',
+                'stuffed',
+                'pretzel',
+            ]));
+        },
+        // TODO: dummy function, implement real database connection
+        'list_available_sizes': async (args: URLSearchParams, body: any): Promise<dt.DoughSize[]> => {
+            return new Promise((resolve) => resolve([
+                'personal',
+                'small',
+                'medium',
+                'large',
+            ]));
         },
     }[apiEndpoint];
 
