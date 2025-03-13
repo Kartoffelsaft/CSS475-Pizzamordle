@@ -23,7 +23,6 @@ fetch('/api/list_available_dough').then((response) => {
 fetch('/api/list_available_sizes').then((response) => {
     response.json().then((avail_sizes) => sizes = avail_sizes);
 });
-
 fetch("http://localhost:8000/api/get_order?orderNumber=2", {
     method: "GET",
 }).then((response) => {
@@ -56,6 +55,7 @@ function addPizza() {
     let deleteButton = document.createElement('button');
     deleteButton.onclick = () => {newSide.remove();};
     deleteButton.innerText = 'X';
+    deleteButton.className = 'deleteButton';
     newPizza.appendChild(deleteButton);
 
     newPizza.appendChild(dropdownFromList(sizes, 'pizzaOptionSize'));
@@ -73,16 +73,19 @@ function addPizza() {
         let deleteButton = document.createElement('button');
         deleteButton.onclick = () => {toppingLine.remove();};
         deleteButton.innerText = 'X';
+        deleteButton.className = 'deleteButton';
         toppingLine.appendChild(deleteButton);
 
         toppingLine.appendChild(dropdownFromList(toppings, 'pizzaOptionTopping'));
         toppingList.appendChild(toppingLine);
     };
     addToppingButton.innerText = 'Add topping';
+    addToppingButton.className = 'addToppingButton';
     newPizza.appendChild(addToppingButton);
 
     orderItems.appendChild(newPizza);
 }
+
 function addSide() {
     let newSide = document.createElement('li');
     newSide.className = 'side'
@@ -90,6 +93,7 @@ function addSide() {
     let deleteButton = document.createElement('button');
     deleteButton.onclick = () => {newSide.remove();};
     deleteButton.innerText = 'X';
+    deleteButton.className = 'deleteButton';
 
     newSide.appendChild(deleteButton);
     newSide.appendChild(dropdownFromList(sides, 'sideOption'));
