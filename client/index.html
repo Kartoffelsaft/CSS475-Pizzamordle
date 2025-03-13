@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<head> </head>
+<head>
+    <link rel='stylesheet' type='text/css' href='styles.css'>    
+</head>
 
 <body>
-    <p> test website </p>
-    <p> Your order number is <code id='output'></code>. </p>
+    <h1> Pizzamordle </h1>
     <p> Your order content is <code id='output2'></code>. </p>
     <div id='order' style='border: 1px solid black'>
-        <h1> order </h1>
+        <h2> Order #<span id='output'>1</span></h2>
         <ul id='orderitems'></ul>
         <br>
         <button onclick='addPizza();'>Add Pizza</button>
-        <button onclick='addSide();'>Add Side</button>
+        <button onclick='addSide();'>Add Side</button><br>
         <button onclick='submitOrder();'>Submit Order</button>
+        <button onclick='cancelOrder();'>Cancel Order</button>
     </div>
 </body>
 
