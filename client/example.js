@@ -145,3 +145,9 @@ function submitOrder() {
         });
     });
 }
+
+// This feels morally wrong, but we aren't calling the server 
+// before this point so it should be fine
+function cancelOrder() {
+    orderItems.innerHTML = '';
+}
