@@ -14,11 +14,28 @@ code {
     color: #d35400;
 }
 
+input {
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    border: 1px solid #bdc3c7;
+}
+
+input[type="checkbox"] {
+    scale: 1.5;
+    display: inline-block;
+}
+
 select {
     padding: 10px;
     margin: 5px;
     border-radius: 5px;
     border: 1px solid #bdc3c7;
+}
+
+select#toppingName, select#sauceName {
+    display: block;
 }
 
 .deleteButton {
