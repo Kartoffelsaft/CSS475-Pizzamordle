@@ -64,6 +64,7 @@ function addPizza() {
 
     let toppingList = document.createElement('ul');
     toppingList.id = 'pizzaToppings'; // why do some HTML elements not have a name field???
+    toppingList.className = 'topping';
     newPizza.appendChild(toppingList);
 
     let addToppingButton = document.createElement('button');
@@ -88,7 +89,7 @@ function addPizza() {
 
 function addSide() {
     let newSide = document.createElement('li');
-    newSide.className = 'side'
+    newSide.className = 'side';
 
     let deleteButton = document.createElement('button');
     deleteButton.onclick = () => {newSide.remove();};

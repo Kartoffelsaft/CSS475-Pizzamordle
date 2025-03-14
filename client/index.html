@@ -6,15 +6,124 @@
 <body>
     <h1> Pizzamordle </h1>
     <p> Your order content is <code id='output2'></code>. </p>
-    <div id='order' style='border: 1px solid black'>
-        <h2> Order #<span id='output'>1</span></h2>
-        <ul id='orderitems'></ul>
-        <br>
-        <button onclick='addPizza();'>Add Pizza</button>
-        <button onclick='addSide();'>Add Side</button><br>
-        <button onclick='submitOrder();'>Submit Order</button>
-        <button onclick='cancelOrder();'>Cancel Order</button>
-    </div>
+
+    <button onclick="swapMain();" id="bigButton">Swap Main</button>
+    <script>
+        // swaps between showing and hiding order and statsContainer
+        let orderShown = true;
+
+        function swapMain() {
+            if (orderShown) {
+                document.getElementById('order').style.display = 'none';
+                document.getElementById('statsContainer').style.display = 'flex';
+            } else {
+                document.getElementById('order').style.display = 'block';
+                document.getElementById('statsContainer').style.display = 'none';
+            }
+            orderShown = !orderShown;
+        }
+    </script>
+
+    <main>
+        <div id='order'>
+            <h2> Order #<span id='output'>1</span></h2>
+            <ul id='orderitems'></ul>
+            <br>
+            <button onclick='addPizza();'>Add Pizza</button>
+            <button onclick='addSide();'>Add Side</button><br>
+            <button onclick='submitOrder();'>Submit Order</button>
+            <button onclick='cancelOrder();'>Cancel Order</button>
+        </div>
+        
+    
+        <div id='statsContainer'> 
+            <div id='runStats'>
+                <h2> Statistics </h2>
+                
+                <h3> Order Statistics </h3>
+                <div class="statGroup">
+                    <label for='orderDate'>Orders made on: </label>
+                    <input type='date' id='orderDate'>
+        
+                    <br>
+        
+                    <button onclick='listOrdersMadeOn();'>Get Orders</button>
+                    <ul id='ordersList'></ul>
+                </div>
+                
+                <h3> Revenue </h3>
+                <div class="statGroup">
+                    <label for='revStart'>Start Date: </label>
+                    <input type='date' id='revStart'>
+                    <label for='revEnd'>End Date: </label>
+                    <input type='date' id='revEnd'>
+        
+                    <br>
+        
+                    <button onclick='getRevenue();'>Get Revenue</button>
+                    <p>Total Revenue: <span id='revenueOutput'></span></p>
+                </div>  
+        
+                <h3> Popular Items </h3>
+                <div class="statGroup">
+                    <label for='popStart'>Start Date: </label>
+                    <input type='date' id='popStart'>
+                    <label for='popEnd'>End Date: </label>
+                    <input type='date' id='popEnd'>
+                    <label for='popAllTime'>All time: </label>
+                    <input type='checkbox' id='popAllTime'>
+                    <label for='popLimit'>Limit: </label>
+                    <input type='number' id='popLimit' min='1'>
+        
+                    <br>
+        
+                    <button onclick='getPopularToppings();'>Get Popular Toppings</button>
+                    <button onclick='getPopularDough();'>Get Popular Dough</button>
+                    <button onclick='getPopularSauce();'>Get Popular Sauce</button>
+                    <button onclick='getPopularCombo();'>Get Popular Combo</button>
+                    <ul id='popularItems'></ul>
+                </div>
+                
+                <h3> Sales Trends </h3>
+                <div class="statGroup">
+                    <label for='toppingName'>Topping Name: </label>
+                    <input type='text' id='toppingName'>
+                    <label for='topStartDate'>Start Date: </label>
+                    <input type='date' id='topStartDate'>
+                    <label for='topEndDate'>End Date: </label>
+                    <input type='date' id='topEndDate'>
+        
+                    <br>
+        
+                    <button onclick='getToppingSalesByInterval();'>Get Topping Sales</button>
+                    <ul id='toppingSales'></ul>
+                </div>
+                
+                <div class="statGroup">
+                    <label for='sauceName'>Sauce Name: </label>
+                    <input type='text' id='sauceName'>
+                    <label for='sauceStartDate'>Start Date: </label>
+                    <input type='date' id='sauceStartDate'>
+                    <label for='sauceEndDate'>End Date: </label>
+                    <input type='date' id='sauceEndDate'>
+        
+                    <br>
+        
+                    <button onclick='getSauceSalesByInterval();'>Get Sauce Sales</button>
+                    <ul id='sauceSales'></ul>
+                </div>
+                
+            </div>
+    
+            <div id='outputStats'>
+                <h2> Statistics Output </h2>
+                <p> Output will be displayed here. </p>
+            </div>
+        </div>
+    </main>
+
+    
+    
 </body>
 
 <script src='example.js'></script>
