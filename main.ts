@@ -78,10 +78,14 @@ async function apiCall(url: URL, body: any): Promise<any> {
             return query[0].ordernumber;
         },
 
-        // TODO: dummy function, implement real database connection
+        // TODO: dummy function, implement real database connection (DETAIL API)
         'get_order': async (args: URLSearchParams, body: any): Promise<dt.PlacedOrder> => {
             let ordernum: String = args.get('orderNumber');
-
+            try {
+                
+            } catch (error) {
+                console.log(error);
+            }
             return new Promise<dt.PlacedOrder>((resolve) => {
                 resolve({
                     phone: '420-666-6969',
@@ -145,47 +149,75 @@ async function apiCall(url: URL, body: any): Promise<any> {
             });
         },
 
-        // TODO: dummy function, implement real database connection
+        /** list_available_sides
+         * This API lists all available sides in the database for the pizza shop.
+         * @params None
+         * @returns A list of strings, each representing a side available for purchase.
+         * Example: ['cookie', 'breadsticks', '2L soda']
+        */
         'list_available_sides': async (args: URLSearchParams, body: any): Promise<dt.Side[]> => {
-            return new Promise((resolve) => resolve([
-                'cookie',
-                '2L soda',
-                'breadsticks',
-            ]));
+            try {
+                const sides = await sql`SELECT name FROM Side;`;
+                return sides.map(side => side.name);
+            } catch (error) {
+                console.log(error);
+                return [];
+            }
         },
-        // TODO: dummy function, implement real database connection
+        /**list_available_toppings
+         * This API lists all available toppings in the database for the pizza shop.
+         * @params None
+         * @returns A list of strings, each representing a topping available for purchase.
+         * Example: ['pepperoni', 'mushroom', 'onion']
+         */
         'list_available_toppings': async (args: URLSearchParams, body: any): Promise<dt.Topping[]> => {
-            return new Promise((resolve) => resolve([
-                'sausage',
-                'mushroom',
-                'pepperoni',
-                'pineapple',
-            ]));
+            try { 
+                const toppings = await sql`SELECT name FROM Topping;`;
+                return toppings.map(topping => topping.name);
+            } catch (error) {
+                console.log(error);
+                return [];
+            }
         },
-        // TODO: dummy function, implement real database connection
+        /**list_available_sauces
+         * This API lists all availabvlable sauces in the database for the pizza shop.
+         * @params None
+         * @returns A list of strings, each representing a sauce available for purchase. 
+         * Example: ['marinara', 'pesto', 'alfredo']
+         */
         'list_available_sauces': async (args: URLSearchParams, body: any): Promise<dt.Sauce[]> => {
-            return new Promise((resolve) => resolve([
-                'pesto',
-                'tomato',
-                'alfredo',
-            ]));
+            try {
+                const sauces = await sql`SELECT name FROM SauceType;`;
+                return sauces.map(sauce => sauce.name);
+            } catch (error) {
+                console.log(error);
+                return [];
+            }
         },
-        // TODO: dummy function, implement real database connection
+        /**list_available_dough
+         * This API lists all available dough types in the database for the pizza shop.
+         * @params None
+         * @returns A list of strings, each representing a dough type available for purchase.
+         * Example: ['regular', 'stuffed', 'pretzel']
+         */
         'list_available_dough': async (args: URLSearchParams, body: any): Promise<dt.DoughType[]> => {
-            return new Promise((resolve) => resolve([
-                'regular',
-                'stuffed',
-                'pretzel',
-            ]));
+            try {
+                const doughs = await sql`SELECT name FROM DoughType;`;
+                return doughs.map(dough => dough.name);
+            } catch (error) {
+                console.log(error);
+                return [];
+            }
         },
         // TODO: dummy function, implement real database connection
         'list_available_sizes': async (args: URLSearchParams, body: any): Promise<dt.DoughSize[]> => {
-            return new Promise((resolve) => resolve([
-                'personal',
-                'small',
-                'medium',
-                'large',
-            ]));
+            try {
+                const sizes = await sql`SELECT name FROM DoughSize;`;
+                return sizes.map(size => size.name);
+            } catch (error) {
+                console.log(error);
+                return [];
+            }
         },
     }[apiEndpoint];
 
