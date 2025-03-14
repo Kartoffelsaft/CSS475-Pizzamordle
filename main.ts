@@ -78,11 +78,59 @@ async function apiCall(url: URL, body: any): Promise<any> {
             return query[0].ordernumber;
         },
 
-        // TODO: dummy function, implement real database connection (DETAIL API)
+        /**get_order (Detail API) 
+         * This API retrieves the details of a placed order from the database and gives back to 
+         * the user all important details, similar to an itemized receipt.
+         * @params orderNumber: The order number of the order to retrieve.
+         * @returns A PlacedOrder object, which contains the phone number of the orderer, the date, 
+         * and all the order details
+         * Example: {
+                    phone: '425-667-6942',
+                    dateOrdered: new Date('1999-12-10 15:13:12'),
+                    orderNumber: ordernum,
+                    contents: [
+                        'breadsticks',
+                        'cookie',
+                        {
+                            dough: {
+                                type: 'regular',
+                                size: 'medium',
+                            },
+                            toppings: [
+                                'pepperoni'
+                            ],
+                            sauce: 'tomato'
+                        },
+                    ]
+                    }
+                }
+        */
         'get_order': async (args: URLSearchParams, body: any): Promise<dt.PlacedOrder> => {
-            let ordernum: String = args.get('orderNumber');
+            let ordernum: string = args.get('orderNumber')!;
             try {
-                
+                const order = await sql`SELECT phoneNumber, dateOrdered, orderNumber FROM "Order" WHERE orderNumber = ${ordernum};`; // Selects the specified order from DB
+                const pizzaNumbers = await sql`SELECT pizzaNumber FROM Pizza WHERE orderNumber = ${ordernum};`; // Selects all the pizzas for said order
+                const orderSides = await sql`SELECT * from addedsides where orderID = (SELECT ID FROM "Order" WHERE orderNumber = ${ordernum});`; // Selects all the sides for said order
+                const orderDetails: dt.Order = [];
+                for (let i = 0; i < pizzaNumbers.length; i++) {
+                    const pizza = await sql`SELECT * FROM Pizza WHERE pizzaNumber = ${pizzaNumbers[i].pizzanumber};`; // Selects the details of the pizza
+                    const pizzaToppings = await sql`SELECT name FROM Ttopping JOIN addedToppings AT ON (AT.pizzaID = (SELECT ID FROM Pizza WHERE Pizza.pizzaNumber = $${orderPizzas[i].pizzanumber})) WHERE topping.ID = AT.toppingID;`; // Selects the toppings for the pizza
+                    const pizzaDetails = {
+                        dough: {
+                            type: pizza[i].doughType,
+                            size: pizza[i].doughSize
+                        },
+                        toppings: [],
+                        sauce: pizza[i].sauceType
+                    };
+                    for (let j = 0; j < pizzaToppings.length; j++) {
+                        pizzaDetails.toppings.push(pizzaToppings[j].toppingname);
+                    }
+                    orderDetails.push(pizzaDetails);
+                }
+                for (let i = 0; i < orderSides.length; i++) {
+                    orderDetails.push(orderSides[i].sidename);
+                }
             } catch (error) {
                 console.log(error);
             }
@@ -209,7 +257,12 @@ async function apiCall(url: URL, body: any): Promise<any> {
                 return [];
             }
         },
-        // TODO: dummy function, implement real database connection
+        /** list_available_sizes
+         * This API lists all available dough sizes in the database for the pizza shop.
+         * @params None
+         * @returns A list of strings, each representing a dough size available for purchase.
+         * Example: ['small', 'medium', 'large']
+         */
         'list_available_sizes': async (args: URLSearchParams, body: any): Promise<dt.DoughSize[]> => {
             try {
                 const sizes = await sql`SELECT name FROM DoughSize;`;
