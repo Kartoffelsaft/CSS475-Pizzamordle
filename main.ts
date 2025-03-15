@@ -67,15 +67,28 @@ async function apiCall(url: URL, body: any): Promise<any> {
 
     const apiFn = {
         // TODO: dummy function
-        'create_order': async (args: URLSearchParams, body: any): Promise<String> => {
-            let order: dt.Order = await JSON.parse(args.get('order'));
-            let phone: String | null = args.get('phone');
+        'create_order': async (args: URLSearchParams, body: any): Promise<string | null> => {
+            try {
+                let order: dt.Order = await JSON.parse(args.get('order'));
+                let phone: string | null = args.get('phone');
+                console.log(phone);
 
-            let query = await sql`
-                SELECT '2' AS ordernumber;
-            `;
+                let [orderid] = await sql.begin(async sql => { // BEGIN TRANSACTION
+                    const [orderid] = await sql`
+                        INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) 
+                        VALUES (${phone}, NOW(), 'ORD10290')
+                        RETURNING id
+                        ;
+                    `;
 
-            return query[0].ordernumber;
+                    return [orderid];
+                });
+
+                return null;
+            } catch (e) {
+                console.error("create_order failed: " + e);
+                return null;
+            }
         },
 
         /**get_order (Detail API) 
