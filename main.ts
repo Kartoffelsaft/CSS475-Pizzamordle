@@ -119,34 +119,26 @@ async function apiCall(url: URL, body: any): Promise<any> {
                 }
         */
         'get_order': async (args: URLSearchParams, body: any): Promise<dt.PlacedOrder> => {
+            /* 
+            Query to get specific order info, and all pizza info (except toppings):
+            SELECT ordernumber, phonenumber, dateordered, pizzaNumber, DS.name AS "doughSize", DT.name AS "doughType", ST.name AS "sauceType", T.name AS "Topping"
+            FROM Pizza P
+                JOIN "Order" O ON (O.ID = P.orderID)
+                JOIN Sauce S ON (P.sauceID = S.ID)
+                JOIN SauceType ST ON (S.sauceTypeID = ST.ID)
+                JOIN Dough D ON (P.doughID = D.ID)
+                JOIN DoughSize DS ON (D.doughSizeID = DS.ID)
+                JOIN DoughType DT ON (D.doughTypeID = DT.ID)
+                JOIN AddedToppings AD ON (AD.pizzaID = P.ID)
+                JOIN Topping T ON (T.ID = AD.toppingID)
+            WHERE orderID = (SELECT ID FROM "Order" WHERE orderNumber = 'ORD001')
+            ORDER BY pizzaNumber;
+
+            Query to get all toppings for a pizza
+
+
+            */
             let ordernum: string = args.get('orderNumber')!;
-            try {
-                const order = await sql`SELECT phoneNumber, dateOrdered, orderNumber FROM "Order" WHERE orderNumber = ${ordernum};`; // Selects the specified order from DB
-                const pizzaNumbers = await sql`SELECT pizzaNumber FROM Pizza WHERE orderNumber = ${ordernum};`; // Selects all the pizzas for said order
-                const orderSides = await sql`SELECT * from addedsides where orderID = (SELECT ID FROM "Order" WHERE orderNumber = ${ordernum});`; // Selects all the sides for said order
-                const orderDetails: dt.Order = [];
-                for (let i = 0; i < pizzaNumbers.length; i++) {
-                    const pizza = await sql`SELECT * FROM Pizza WHERE pizzaNumber = ${pizzaNumbers[i].pizzanumber};`; // Selects the details of the pizza
-                    const pizzaToppings = await sql`SELECT name FROM Ttopping JOIN addedToppings AT ON (AT.pizzaID = (SELECT ID FROM Pizza WHERE Pizza.pizzaNumber = $${orderPizzas[i].pizzanumber})) WHERE topping.ID = AT.toppingID;`; // Selects the toppings for the pizza
-                    const pizzaDetails = {
-                        dough: {
-                            type: pizza[i].doughType,
-                            size: pizza[i].doughSize
-                        },
-                        toppings: [],
-                        sauce: pizza[i].sauceType
-                    };
-                    for (let j = 0; j < pizzaToppings.length; j++) {
-                        pizzaDetails.toppings.push(pizzaToppings[j].toppingname);
-                    }
-                    orderDetails.push(pizzaDetails);
-                }
-                for (let i = 0; i < orderSides.length; i++) {
-                    orderDetails.push(orderSides[i].sidename);
-                }
-            } catch (error) {
-                console.log(error);
-            }
             return new Promise<dt.PlacedOrder>((resolve) => {
                 resolve({
                     phone: '420-666-6969',
