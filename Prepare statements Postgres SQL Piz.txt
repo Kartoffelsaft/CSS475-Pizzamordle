@@ -1,0 +1,32 @@
+-- Prepare statements Postgres SQL Pizzeria Project
+
+PREPARE list_sides AS
+SELECT name FROM Side;
+
+PREPARE list_toppings AS
+SELECT name FROM Topping;
+
+PREPARE list_sauces AS
+SELECT name FROM SauceType;
+
+PREPARE list_dough AS
+SELECT name FROM doughType;
+
+PREPARE list_dough_sizes AS
+SELECT name FROM doughSize;
+
+-- To execute (what we'll put inside of our APIs)
+
+EXECUTE list_sides;
+
+EXECUTE list_toppings;
+
+EXECUTE list_sauces;
+
+EXECUTE list_dough;
+
+EXECUTE list_dough_sizes;
+
+-- DEALLOCATE PREPARE_STATEMENT_NAME to deallocate.
+
+
