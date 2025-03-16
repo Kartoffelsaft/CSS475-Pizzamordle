@@ -245,7 +245,8 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                         // Create the pizza object and add dough and sauce
                         let pizzaObj = new dt.Pizza();
                         pizzaObj.dough = dough;
-                        pizzaObj.sauce = pizza.sauce as dt.Sauce;   
+                        pizzaObj.sauce = pizza.sauceType as dt.Sauce;   
+                        console.log(pizzaObj.sauce);
                         // Toppings should be empty in this case until we append later
                         pizzaObj.toppings = [];
 
