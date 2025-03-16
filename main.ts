@@ -94,14 +94,15 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
          * fetch("/api/create_order?phone=123-456-7890", {
          *     method: "POST",
          *     body: JSON.stringify(
-         *         [{dough:{size:'Medium', type:'Thick Crust'}, sauce:'Alfredo'}]
+         *         [{dough:{size:'Medium', type:'Thick Crust'}, sauce:'Alfredo', toppings:['Sausage', 'Pepperoni']}]
          *     ),
          * }).then((response) => {
          *     response.json().then((ordernum) => {
-         *         ordernumShown.innerText = ordernum;
+         *         console.log(ordernum);
          *     });
          * });
          * ```
+         * prints something like "ORD0928137"
          */
         'create_order': async (args: URLSearchParams, body: any): APIReturn<String> => {
             try {
