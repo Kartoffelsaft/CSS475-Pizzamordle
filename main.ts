@@ -244,6 +244,9 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 placedOrder.phone = boringOrder[0].phonenumber;
                 placedOrder.dateOrdered = new Date(boringOrder[0].dateOrdered);
                 placedOrder.contents = [...pizzas, ...allSides];
+
+                return {ok: placedOrder};
+
             } else {
                 // Create the placedOrder Object from the pizzas and sides
                 const placedOrder = new dt.PlacedOrder();
@@ -252,11 +255,10 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 placedOrder.dateOrdered = new Date(orderPizzaDetails[0].dateOrdered);
                 placedOrder.contents = [...pizzas, ...allSides];
 
-                return placedOrder;
+                return {ok: placedOrder};
             }
             } catch (error) {
-                console.log(error);
-                throw new Error('Error fetching order details');
+                return {err: "Unable to get order. Try again later!"};
             }
         },
 
@@ -312,7 +314,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 return {ok: sides.map(side => side.name)};
             } catch (error) {
                 console.log(error);
-                return {err: "failed"};
+                return {err: "Unable to get all available sides. Try again later!"};
             }
         },
         /**list_available_toppings
@@ -327,7 +329,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 return {ok: toppings.map(topping => topping.name)};
             } catch (error) {
                 console.log(error);
-                return {err: "failed"};
+                return {err: "Unable to get all toppings. Try again later!"};
             }
         },
         /**list_available_sauces
@@ -342,7 +344,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 return {ok: sauces.map(sauce => sauce.name)};
             } catch (error) {
                 console.log(error);
-                return {err: "failed"};
+                return {err: "Unable to get all sauces. Try again later!"};
             }
         },
         /**list_available_dough
@@ -357,7 +359,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 return {ok: doughs.map(dough => dough.name)};
             } catch (error) {
                 console.log(error);
-                return {err: "failed"};
+                return {err: "Unable to get all dough types. Try again later!"};
             }
         },
         /** list_available_sizes
@@ -372,7 +374,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 return {ok: sizes.map(size => size.name)};
             } catch (error) {
                 console.log(error);
-                return {err: "failed"};
+                return {err: "Unable to get all dough sizes. Try again later!"};
             }
         },
     }[apiEndpoint];
