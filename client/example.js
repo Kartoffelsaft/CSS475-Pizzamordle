@@ -242,8 +242,48 @@ function getPopularCombo() {
     });
 }
 
+function displayTrend(data) {
+    outputStatsShown.innerHTML = '';
+    if (data.length <= 0) {
+        outputStatsShown.innerText = 'no trend data';
+        return;
+    }
 
+    let graphCanvas = document.createElement('canvas');
+    graphCanvas.width = 400;
+    graphCanvas.height = 200;
 
+    let ctx = graphCanvas.getContext('2d');
 
+    ctx.fillStyle = '#ccc'
+    ctx.fillRect(0, 0, graphCanvas.width, graphCanvas.height);
+
+    let max = 0;
+    for (let [day, datum] of data) {
+        if (datum > max) max = datum;
+    }
+
+    const iToX = (i) => i * graphCanvas.width / (data.length-1);
+    const vToY = (v) => graphCanvas.height - (v * graphCanvas.height / max);
+
+    ctx.strokeStyle = '#117';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(iToX(0), vToY(data[0][1]));
+    for (let i = 1; i < data.length; i++) {
+        ctx.lineTo(iToX(i), vToY(data[i][1]));
+    }
+    ctx.stroke();
+
+    outputStatsShown.appendChild(graphCanvas);
+}
+
+function getDailyToppingSales() {
+    fetch('/api/daily_topping_sales').then((response) => {
+        response.json().then((data) => {
+            displayTrend(data);
+        });
+    });
+}
 
 

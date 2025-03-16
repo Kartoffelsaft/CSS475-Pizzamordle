@@ -457,6 +457,29 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 return {err: "Unable to get all dough sizes. Try again later!"};
             }
         },
+
+        // TODO: dummy function, implement real database connection
+        'daily_topping_sales': async (args: URLSearchParams, body: any): APIReturn<dt.Trend> => {
+            return new Promise((resolve) => {
+                resolve({ok: [
+                    [new Date('2025-03-01'),  5],
+                    [new Date('2025-03-02'),  2],
+                    [new Date('2025-03-03'),  3],
+                    [new Date('2025-03-04'),  7],
+                    [new Date('2025-03-05'), 18],
+                    [new Date('2025-03-06'), 10],
+                    [new Date('2025-03-07'),  8],
+                    [new Date('2025-03-08'),  2],
+                    [new Date('2025-03-09'),  7],
+                    [new Date('2025-03-10'),  9],
+                    [new Date('2025-03-11'),  1],
+                    [new Date('2025-03-12'),  0],
+                    [new Date('2025-03-13'),  2],
+                ]});
+            });
+        },
+
+
     }[apiEndpoint];
 
     if (apiFn) {
