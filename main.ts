@@ -324,25 +324,62 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             return new Promise((resolve) => resolve({ok: '2'}));
         },
 
-        // TODO: dummy function, implement real database connection
-        'get_popular_sides': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Side>> => {
-            return new Promise((resolve) => {
-                resolve({ok: [
-                    ['cookie', 58],
-                    ['breadsticks', 33],
-                    ['2L soda', 7],
-                ]});
-            });
+
+        // TODO: Jac is working on this!
+        'get_popular_side': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Side>> => {
+            try {
+                const startDate = args.get('start');
+                const endDate = args.get('end');
+                const limit = args.get('limit');
+
+                if (!startDate) throw new Error('startDate is required');
+                if (!endDate) throw new Error('endDate is required');
+                if (!limit) throw new Error('limit is required');
+                
+                const popularSides = await sql`SELECT Side.name, COUNT(AddedSides.sideID) as "count"
+                FROM AddedSides
+                    JOIN Side ON (Side.ID = AddedSides.sideID)
+                    JOIN "Order" ON ("Order".ID = AddedSides.orderID)
+                    WHERE "Order".dateOrdered BETWEEN ${startDate} AND ${endDate}
+                    GROUP BY Side.name
+                    ORDER BY count DESC
+                    LIMIT ${limit};`;
+
+                return {ok: popularSides.map((side: any) => [side.name, side.count])};
+                
+            } catch (error) {
+                console.warn(error);
+                return {err: "Unable to get popular sides. Try again later!"};
+            }
         },
 
-        // TODO: dummy function, implement real database connection
+        // TODO: Jac is working on this!
         'get_popular_toppings': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Topping>> => {
-            return new Promise((resolve) => {
-                resolve({ok: [
-                    ['pepperoni', 101],
-                    ['mushroom', 34],
-                ]});
-            });
+            try {
+                const startDate = args.get('start');
+                const endDate = args.get('end');
+                const limit = args.get('limit');
+
+                if (!startDate) throw new Error('startDate is required');
+                if (!endDate) throw new Error('endDate is required');
+                if (!limit) throw new Error('limit is required');
+                
+                const popularToppings = await sql`SELECT Topping.name, COUNT(AddedToppings.toppingID) as "count"
+                FROM AddedToppings
+                    JOIN Topping ON (Topping.ID = AddedToppings.toppingID)
+                    JOIN Pizza ON (Pizza.ID = AddedToppings.pizzaID)
+                    JOIN "Order" ON ("Order".ID = Pizza.orderID)
+                    WHERE "Order".dateOrdered BETWEEN ${startDate} AND ${endDate}
+                    GROUP BY Topping.name
+                    ORDER BY count DESC
+                    LIMIT ${limit};`;
+
+                return {ok: popularToppings.map((topping: any) => [topping.name, topping.count])};
+                
+            } catch (error) {
+                console.warn(error);
+                return {err: "Unable to get popular toppings. Try again later!"};
+            }
         },
 
         // TODO: dummy function, implement real database connection
