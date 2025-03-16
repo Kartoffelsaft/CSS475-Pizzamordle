@@ -244,10 +244,14 @@ function getPopularCombo() {
 }
 
 function listOrdersMadeOn() {
+    console.log(document.getElementById('orderDate').value);
     fetch(
         `/api/list_orders_made_on?date=${document.getElementById('orderDate').value}`
     ).then((resp) => {
-        resp.json().then((orders) => {
+        resp.json().then((orderNums) => {
+            const realOrderNumbers = orderNums.map(orderNumber => orderNumber.orderNumber);
+            console.log(realOrderNumbers);
+
             outputStatsShown.innerHTML = '';
 
             let table = document.createElement('table');
@@ -260,29 +264,31 @@ function listOrdersMadeOn() {
                 </thead>
                 <tbody></tbody>
             `;
-            let tableBody = table.querySelector('tbody');
+            let tableBody = table.querySelector('tbody');            
 
-            console.log(orders);
-
-            let orderFetches = orders.map(order =>
-                fetch(`/api/get_order?ordernum=${order.ordernum}`)
+            let orderFetches = realOrderNumbers.map(orderNum =>
+                fetch(`/api/get_order?orderNumber=${orderNum}`) // Fix: Use 'ordernum'
                     .then(resp => resp.json())
-                    .then(orderItems => {
+                    .then(order => { // Fix: Access order.contents, not orderItems
+                        console.log(order.contents);
                         let row = document.createElement('tr');
-                        let itemStrings = orderItems.map(item => {
-                            if ('side' in item) {
-                                return `1x ${item.side}`;
-                            } else {
+                        let itemStrings = order.contents.map(item => {
+                            // if the item is a side...
+                            if (item.quantity) {
+                                return `${item.quantity}x ${item.side}`;
+                            } 
+                            // otherwise it's a pizza
+                            else {
                                 let description = `1x ${item.dough.size} ${item.dough.type} Pizza with ${item.sauce}`;
-                                if (item.toppings.length > 0) {
-                                    description += ' with ' + item.toppings.join(', ');
+                                if (item.toppings) {
+                                    description += ', topped with ' + item.toppings.join(', ');
                                 }
                                 return description;
                             }
                         });
 
                         row.innerHTML = `
-                            <td>${order.ordernum}</td>
+                            <td>${orderNum}</td>
                             <td>${itemStrings.join(', ')}</td>
                         `;
 

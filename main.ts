@@ -528,26 +528,27 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             }
         },
 
-        'list_orders_made_on': async (args: URLSearchParams, body: any): APIReturn<dt.Order[]> => {
+        // Returns a list of order numbers which correspond to orders made on the input date
+        'list_orders_made_on': async (args: URLSearchParams, body: any): APIReturn<{ orderNumber: string }[]> => {
+            const date = args.get('date');
+            if (!date) {
+                return { err: "Date parameter is required" };
+            }
+
             try {
-                const date = args.get('date');
-                if (!date) throw new Error('date is required');
-
-
-                const orders = await sql`SELECT Order.orderNumber 
-                    FROM Order
-                    WHERE Order.dateOrdered = ${date}
+                const orderNumbers = await sql<{ orderNumber: string }[]>`
+                    SELECT "Order".orderNumber AS "orderNumber" FROM "Order"
                 `;
-
-                // return orders
                 
-
+                return { ok: orderNumbers };
 
             } catch (error) {
                 console.log(error);
-                return {err: "Unable to get all dough sizes. Try again later!"};
+                return { err: `Unable to get all orders made on ${date}. Try again later!` };
             }
         },
+
+
     }[apiEndpoint];
 
     if (apiFn) {
