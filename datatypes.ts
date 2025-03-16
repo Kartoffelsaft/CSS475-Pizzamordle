@@ -17,7 +17,12 @@ export class Pizza {
     sauce: Sauce;
 }
 
-export type OrderLine = Pizza | Side;
+export class AddedSide {
+    side: Side;
+    quantity: number;
+}
+
+export type OrderLine = Pizza | AddedSide;
 export type Order = OrderLine[];
 
 export class PlacedOrder {
