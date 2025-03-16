@@ -85,22 +85,77 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
         // TODO: dummy function
         'create_order': async (args: URLSearchParams, body: any): APIReturn<String> => {
             try {
-                let order: dt.Order = await JSON.parse(args.get('order'));
+                let order: dt.Order = body;
                 let phone: string | null = args.get('phone');
-                console.log(phone);
+
+                let ordernum = 'ORD' + `${Math.floor(Math.random() * 100000000)}`;
 
                 let [orderid] = await sql.begin(async sql => { // BEGIN TRANSACTION
                     const [orderid] = await sql`
                         INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) 
-                        VALUES (${phone}, NOW(), 'ORD10290')
+                        VALUES (${phone}, NOW(), ${ordernum})
                         RETURNING id
                         ;
                     `;
 
+                    for (let orderItem of order) {
+                        if ('side' in orderItem) {
+                            // this is a side
+                            await sql`
+                                INSERT INTO AddedSides (orderid, sideid, quantity)
+                                VALUES (
+                                    ${orderid.id}, 
+                                    (SELECT id FROM Side WHERE name = ${orderItem.side}),
+                                    ${orderItem.quantity}
+                                );
+                            `;
+                        } else {
+                            // this is a pizza
+                            const [doughid] = await sql`
+                                INSERT INTO Dough (doughTypeId, doughSizeId)
+                                VALUES (
+                                    (SELECT id FROM DoughType WHERE name = ${orderItem.dough.type}),
+                                    (SELECT id FROM DoughSize WHERE name = ${orderItem.dough.size})
+                                )
+                                RETURNING id
+                                ;
+                            `;
+
+                            const [sauceid] = await sql`
+                                INSERT INTO Sauce (sauceTypeId)
+                                VALUES ((SELECT id FROM SauceType WHERE SauceType.name = ${orderItem.sauce}))
+                                RETURNING id
+                                ;
+                            `;
+
+                            let pizzanum = 'PZ' + `${Math.floor(Math.random() * 100000000)}`;
+
+                            const [pizzaid] = await sql`
+                                INSERT INTO Pizza (orderId, doughId, sauceId, pizzaNumber)
+                                VALUES (
+                                    ${orderid.id},
+                                    ${doughid.id},
+                                    ${sauceid.id},
+                                    ${pizzanum}
+                                )
+                                RETURNING id
+                                ;
+                            `;
+
+                            for (let addedTopping of orderItem.toppings) {
+                                const [addedtoppingid] = await sql`
+                                    INSERT INTO AddedToppings (pizzaId, toppingId)
+                                    VALUES (${pizzaid.id}, (SELECT id FROM Topping WHERE name = ${addedTopping}))
+                                    ;
+                                `;
+                            }
+                        }
+                    }
+
                     return [orderid];
                 });
 
-                return {ok: ''};
+                return {ok: ordernum};
             } catch (e) {
                 console.error("create_order failed: " + e);
                 return {err: "order failed"};
@@ -141,101 +196,103 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 if(!orderNumber) { 
                     throw new Error('Order number is required');
                 }
-            const orderPizzaDetails = await sql`SELECT ordernumber, phonenumber, dateordered, pizzaNumber, DS.name AS "doughSize", DT.name AS "doughType", ST.name AS "sauceType", T.name AS "Topping"
-            FROM Pizza P
-                JOIN "Order" O ON (O.ID = P.orderID)
-                JOIN Sauce S ON (P.sauceID = S.ID)
-                JOIN SauceType ST ON (S.sauceTypeID = ST.ID)
-                JOIN Dough D ON (P.doughID = D.ID)
-                JOIN DoughSize DS ON (D.doughSizeID = DS.ID)
-                JOIN DoughType DT ON (D.doughTypeID = DT.ID)
-                JOIN AddedToppings AD ON (AD.pizzaID = P.ID)
-                JOIN Topping T ON (T.ID = AD.toppingID)
-            WHERE orderID = (SELECT ID FROM "Order" WHERE orderNumber = ${orderNumber})
-            ORDER BY pizzaNumber;`;
 
-            // Map to avoid duplicate pizzas
-            let pizzaMap = new Map<string, dt.Pizza>();
-            
-            orderPizzaDetails.forEach(pizza => {
-                // Check if this is a new unique pizza, then fill in the singular items (dough, sauce)
-                if(!pizzaMap.has(pizza.pizzaNumber)) {
-                    // Create the dough object to add to the pizza object
-                    let dough = new dt.Dough();
-                    dough.type = pizza.doughType as dt.DoughType;
-                    dough.size = pizza.doughSize as dt.DoughSize;
+                const orderPizzaDetails = await sql`SELECT ordernumber, phonenumber, dateordered, pizzaNumber, DS.name AS "doughSize", DT.name AS "doughType", ST.name AS "sauceType", T.name AS "Topping"
+                FROM Pizza P
+                    JOIN "Order" O ON (O.ID = P.orderID)
+                    JOIN Sauce S ON (P.sauceID = S.ID)
+                    JOIN SauceType ST ON (S.sauceTypeID = ST.ID)
+                    JOIN Dough D ON (P.doughID = D.ID)
+                    JOIN DoughSize DS ON (D.doughSizeID = DS.ID)
+                    JOIN DoughType DT ON (D.doughTypeID = DT.ID)
+                    JOIN AddedToppings AD ON (AD.pizzaID = P.ID)
+                    JOIN Topping T ON (T.ID = AD.toppingID)
+                WHERE orderID = (SELECT ID FROM "Order" WHERE orderNumber = ${orderNumber})
+                ORDER BY pizzaNumber;`;
 
-                    // Create the pizza object and add dough and sauce
-                    let pizzaObj = new dt.Pizza();
-                    pizzaObj.dough = dough;
-                    pizzaObj.sauce = pizza.sauce as dt.Sauce;   
-                    // Toppings should be empty in this case until we append later
-                    pizzaObj.toppings = [];
+                // Map to avoid duplicate pizzas
+                let pizzaMap = new Map<string, dt.Pizza>();
+                
+                orderPizzaDetails.forEach(pizza => {
+                    // Check if this is a new unique pizza, then fill in the singular items (dough, sauce)
+                    if(!pizzaMap.has(pizza.pizzaNumber)) {
+                        // Create the dough object to add to the pizza object
+                        let dough = new dt.Dough();
+                        dough.type = pizza.doughType as dt.DoughType;
+                        dough.size = pizza.doughSize as dt.DoughSize;
 
-                    pizzaMap.set(pizza.pizzaNumber, pizzaObj);
-                }
+                        // Create the pizza object and add dough and sauce
+                        let pizzaObj = new dt.Pizza();
+                        pizzaObj.dough = dough;
+                        pizzaObj.sauce = pizza.sauce as dt.Sauce;   
+                        // Toppings should be empty in this case until we append later
+                        pizzaObj.toppings = [];
 
-                // Add all toppings to each pizza object in the map
-                let pizzaObj = pizzaMap.get(pizza.pizzaNumber);
-                if (pizzaObj && pizza.Topping && !pizzaObj.toppings.includes(pizza.Topping)) {
-                    pizzaObj.toppings.push(pizza.Topping as dt.Topping);
-                }
-            });
+                        pizzaMap.set(pizza.pizzaNumber, pizzaObj);
+                    }
 
-            // Deal with the sides
-            const orderSideDetails = await sql`SELECT S.name AS "Side", ADS.quantity as "Quantity"
-            FROM "Order" O
-                JOIN AddedSides ADS ON (ADS.orderID = O.ID)
-                JOIN Side S ON (S.ID = ADS.sideID)
-            WHERE O.orderNumber = ${orderNumber};`
+                    // Add all toppings to each pizza object in the map
+                    let pizzaObj = pizzaMap.get(pizza.pizzaNumber);
+                    if (pizzaObj && pizza.Topping && !pizzaObj.toppings.includes(pizza.Topping)) {
+                        pizzaObj.toppings.push(pizza.Topping as dt.Topping);
+                    }
+                });
 
-            // Map to avoid duplicate sides - unlikely, but in this rare case best to avoid issue
-            let sidesMap = new Map<string, dt.AddedSide>();
-
-            orderSideDetails.forEach(side => {
-                if(!sidesMap.has(side.Side)){
-                    const tmpSide = side.Side as dt.Side;
-                    let sideObj = new dt.AddedSide();
-                    sideObj.side = tmpSide;
-                    sideObj.quantity = 0;
-                    sidesMap.set(side.Side, sideObj);
-                }
-                // Add the quantity of the specified side, to the side
-                let sideObj = sidesMap.get(side.Side);
-                sideObj.quantity = (sideObj.quantity + (side.Quantity));
-
-            })
-
-            // Combine sides and pizzas to the order
-            const pizzas = Array.from(pizzaMap.values());
-            const allSides = Array.from(sidesMap.values());
-
-            // If someone just got sides, but no pizzas, we need to still get order details. 
-            // Or for some reason there is an order with nothing associated to it
-            if(pizzaMap.size === 0){
-                const boringOrder = await sql`SELECT ordernumber AS "orderNumber", phonenumber, dateordered AS "dateOrdered"
+                // Deal with the sides
+                const orderSideDetails = await sql`SELECT S.name AS "Side", ADS.quantity as "Quantity"
                 FROM "Order" O
-                WHERE O.ordernumber = '${orderNumber}';`
+                    JOIN AddedSides ADS ON (ADS.orderID = O.ID)
+                    JOIN Side S ON (S.ID = ADS.sideID)
+                WHERE O.orderNumber = ${orderNumber};`
 
-                let placedOrder = new dt.PlacedOrder();
-                placedOrder.orderNumber = boringOrder[0].orderNumber;
-                placedOrder.phone = boringOrder[0].phonenumber;
-                placedOrder.dateOrdered = new Date(boringOrder[0].dateOrdered);
-                placedOrder.contents = [...pizzas, ...allSides];
+                // Map to avoid duplicate sides - unlikely, but in this rare case best to avoid issue
+                let sidesMap = new Map<string, dt.AddedSide>();
 
-                return {ok: placedOrder};
+                orderSideDetails.forEach(side => {
+                    if(!sidesMap.has(side.Side)){
+                        const tmpSide = side.Side as dt.Side;
+                        let sideObj = new dt.AddedSide();
+                        sideObj.side = tmpSide;
+                        sideObj.quantity = 0;
+                        sidesMap.set(side.Side, sideObj);
+                    }
+                    // Add the quantity of the specified side, to the side
+                    let sideObj = sidesMap.get(side.Side);
+                    sideObj.quantity = (sideObj.quantity + (side.Quantity));
 
-            } else {
-                // Create the placedOrder Object from the pizzas and sides
-                let placedOrder = new dt.PlacedOrder();
-                placedOrder.orderNumber = orderPizzaDetails[0].orderNumber;
-                placedOrder.phone = orderPizzaDetails[0].phonenumber;
-                placedOrder.dateOrdered = new Date(orderPizzaDetails[0].dateordered);
-                placedOrder.contents = [...pizzas, ...allSides];
+                })
 
-                return {ok: placedOrder};
-            }
+                // Combine sides and pizzas to the order
+                const pizzas = Array.from(pizzaMap.values());
+                const allSides = Array.from(sidesMap.values());
+
+                // If someone just got sides, but no pizzas, we need to still get order details. 
+                // Or for some reason there is an order with nothing associated to it
+                if(pizzaMap.size === 0){
+                    const boringOrder = await sql`SELECT ordernumber AS "orderNumber", phonenumber, dateordered AS "dateOrdered"
+                    FROM "Order" O
+                    WHERE O.ordernumber = ${orderNumber};`
+
+                    let placedOrder = new dt.PlacedOrder();
+                    placedOrder.orderNumber = boringOrder[0].orderNumber;
+                    placedOrder.phone = boringOrder[0].phonenumber;
+                    placedOrder.dateOrdered = new Date(boringOrder[0].dateOrdered);
+                    placedOrder.contents = [...pizzas, ...allSides];
+
+                    return {ok: placedOrder};
+
+                } else {
+                    // Create the placedOrder Object from the pizzas and sides
+                    let placedOrder = new dt.PlacedOrder();
+                    placedOrder.orderNumber = orderPizzaDetails[0].orderNumber;
+                    placedOrder.phone = orderPizzaDetails[0].phonenumber;
+                    placedOrder.dateOrdered = new Date(orderPizzaDetails[0].dateordered);
+                    placedOrder.contents = [...pizzas, ...allSides];
+
+                    return {ok: placedOrder};
+                }
             } catch (error) {
+                console.warn(error);
                 return {err: "Unable to get order. Try again later!"};
             }
         },

@@ -23,6 +23,7 @@ fetch('/api/list_available_dough').then((response) => {
 fetch('/api/list_available_sizes').then((response) => {
     response.json().then((avail_sizes) => sizes = avail_sizes);
 });
+
 fetch("http://localhost:8000/api/get_order?orderNumber=2", {
     method: "GET",
 }).then((response) => {
@@ -110,7 +111,10 @@ function submitOrder() {
         if (orderLine.classList.contains('side')) {
             /** @type {HTMLSelectElement} */
             let selection = orderLine.children.namedItem('sideOption');
-            orderItems.push(selection.children[selection.selectedIndex].value);
+            orderItems.push({
+                side: selection.children[selection.selectedIndex].value,
+                quantity: 1
+            });
         }
         if (orderLine.classList.contains('pizza')) {
             let selectionSize = orderLine.children.namedItem('pizzaOptionSize');
