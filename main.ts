@@ -82,7 +82,27 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
     console.log("Call of api endpoint: " + apiEndpoint);
 
     const apiFn = {
-        // TODO: dummy function
+        /**create_order by Ben Findley
+         *
+         * POST to this api with an array of items in the order (and optionally
+         * phone# in query string). This will add the order described to the DB
+         * and return an ordernum you can use to refer back to the order
+         *
+         * example:
+         *
+         * ```
+         * fetch("/api/create_order?phone=123-456-7890", {
+         *     method: "POST",
+         *     body: JSON.stringify(
+         *         [{dough:{size:'Medium', type:'Thick Crust'}, sauce:'Alfredo'}]
+         *     ),
+         * }).then((response) => {
+         *     response.json().then((ordernum) => {
+         *         ordernumShown.innerText = ordernum;
+         *     });
+         * });
+         * ```
+         */
         'create_order': async (args: URLSearchParams, body: any): APIReturn<String> => {
             try {
                 let order: dt.Order = body;
@@ -337,6 +357,30 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             });
         },
 
+        // TODO: dummy function, implement real database connection
+        'get_popular_sauce': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Sauce>> => {
+            return new Promise((resolve) => {
+                resolve({ok: [
+                    ['tomato', 73],
+                    ['pesto', 13],
+                    ['alfredo', 8],
+                ]});
+            });
+        },
+
+        // TODO: dummy function, implement real database connection
+        'get_popular_combo': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<string>> => {
+            return new Promise((resolve) => {
+                resolve({ok: [
+                    ['pepperoni/sausage', 43],
+                    ['ham/pineapple', 33],
+                    ['broccoli/extra cheese', 20],
+                    ['mushrooms/pepperoni', 5],
+                    ['anchovies/pepperoni', 1],
+                ]});
+            });
+        },
+
         /** list_available_sides
          * This API lists all available sides in the database for the pizza shop.
          * @params None
@@ -417,7 +461,9 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
     if (apiFn) {
         return await apiFn(url.searchParams, body);
     } else {
-        return undefined;
+        return new Promise((resolve) => {
+            resolve({err: 'api endpoint does not exist'});
+        });
     }
 }
 

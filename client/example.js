@@ -1,6 +1,5 @@
-var exampleOutput = document.getElementById('output');
-var exampleOutput2 = document.getElementById('output2');
-var orderItems = document.getElementById('orderitems');
+//                             --- COMMON ---                                 //
+// -------------------------------------------------------------------------- //
 
 var sides = [];
 var toppings = [];
@@ -24,13 +23,11 @@ fetch('/api/list_available_sizes').then((response) => {
     response.json().then((avail_sizes) => sizes = avail_sizes);
 });
 
-fetch("http://localhost:8000/api/get_order?orderNumber=2", {
-    method: "GET",
-}).then((response) => {
-    response.json().then((order) => {
-        exampleOutput2.innerText = JSON.stringify(order);
-    });
-});
+//                            --- ORDERING MENU ---                           //
+// -------------------------------------------------------------------------- //
+
+var ordernumShown = document.getElementById('ordernum');
+var orderItems = document.getElementById('orderitems');
 
 /**
  * @param {String[]} list
@@ -141,12 +138,12 @@ function submitOrder() {
 
     console.log(orderItems);
 
-    fetch("http://localhost:8000/api/create_order", {
+    fetch("/api/create_order", {
         method: "POST",
         body: JSON.stringify(orderItems),
     }).then((response) => {
         response.json().then((ordernum) => {
-            exampleOutput.innerText = ordernum;
+            ordernumShown.innerText = ordernum;
         });
     });
 }
@@ -156,3 +153,97 @@ function submitOrder() {
 function cancelOrder() {
     orderItems.innerHTML = '';
 }
+
+//                     --- DASHBOARD & STATS MENU ---                         //
+// -------------------------------------------------------------------------- //
+
+var outputStatsShown = document.getElementById('outputStatsDisplay');
+
+function displayPopular(items, what) {
+    outputStatsShown.innerHTML = '';
+
+    let table = document.createElement('table');
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th scope='col'>${what}</th>
+                <th scope='col'>Quantity</th>
+            </tr>
+        </thead>
+    `;
+    let tableData = document.createElement('tbody');
+
+    for (let [item, quantity] of items) {
+        let row = document.createElement('tr');
+        row.innerHTML = `
+            <tr>
+            <td>${item}</td>
+            <td>${quantity}</td>
+            </tr>
+        `;
+        tableData.appendChild(row);
+    }
+
+    table.appendChild(tableData);
+    outputStatsShown.appendChild(table);
+}
+
+function popularQueryParams() {
+    let params = [];
+
+    let limit = document.getElementById('popLimit').value;
+    params.push(`limit=${encodeURIComponent(limit)}`);
+
+    if (document.getElementById('popAllTime').checked) {
+    } else {
+        // TODO: handle start/end dates
+    }
+
+    return params.join('&');
+}
+
+function getPopularToppings() {
+    fetch(
+        `/api/get_popular_toppings?${popularQueryParams()}`
+    ).then((resp) => {
+        resp.json().then((items) => displayPopular(items, 'Topping'));
+    });
+}
+
+function getPopularDough() {
+    fetch(
+        `/api/get_popular_dough?${popularQueryParams()}`
+    ).then((resp) => {
+        resp.json().then((items) => displayPopular(items, 'Dough'));
+    });
+}
+
+function getPopularSauce() {
+    fetch(
+        `/api/get_popular_sauce?${popularQueryParams()}`
+    ).then((resp) => {
+        resp.json().then((items) => displayPopular(items, 'Sauce'));
+    });
+}
+
+function getPopularSide() {
+    fetch(
+        `/api/get_popular_side?${popularQueryParams()}`
+    ).then((resp) => {
+        resp.json().then((items) => displayPopular(items, 'Side'));
+    });
+}
+
+function getPopularCombo() {
+    fetch(
+        `/api/get_popular_combo?${popularQueryParams()}`
+    ).then((resp) => {
+        resp.json().then((items) => displayPopular(items, 'Combo'));
+    });
+}
+
+
+
+
+
+

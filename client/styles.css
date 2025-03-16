@@ -176,3 +176,11 @@ main {
 .topping {
     margin-left: 30px;
 }
+
+th {
+    border-bottom: 1px solid black;
+}
+td {
+    border: 1px solid lightgray;
+    padding: 0.5em 2em;
+}

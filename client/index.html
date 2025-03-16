@@ -5,7 +5,6 @@
 
 <body>
     <h1> Pizzamordle </h1>
-    <p> Your order content is <code id='output2'></code>. </p>
 
     <button onclick="swapMain();" id="bigButton">Swap Main</button>
     <script>
@@ -26,7 +25,7 @@
 
     <main>
         <div id='order'>
-            <h2> Order #<span id='output'>1</span></h2>
+            <h2> Order #<span id='ordernum'>?</span></h2>
             <ul id='orderitems'></ul>
             <br>
             <button onclick='addPizza();'>Add Pizza</button>
@@ -121,7 +120,7 @@
     
             <div id='outputStats'>
                 <h2> Statistics Output </h2>
-                <p> Output will be displayed here. </p>
+                <p id='outputStatsDisplay'> Output will be displayed here. </p>
             </div>
         </div>
     </main>
