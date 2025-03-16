@@ -196,7 +196,6 @@ function popularQueryParams() {
         params.set('start', '578-01-01');
         params.set('end', '9999-12-31');
     } else {
-        // TODO: handle start/end dates
         params.set('start', document.getElementById('popStart').value);
         params.set('end', document.getElementById('popEnd').value);
     }
@@ -243,6 +242,61 @@ function getPopularCombo() {
         resp.json().then((items) => displayPopular(items, 'Combo'));
     });
 }
+
+function listOrdersMadeOn() {
+    fetch(
+        `/api/list_orders_made_on?date=${document.getElementById('orderDate').value}`
+    ).then((resp) => {
+        resp.json().then((orders) => {
+            outputStatsShown.innerHTML = '';
+
+            let table = document.createElement('table');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th scope='col'>Order Number</th>
+                        <th scope='col'>Items</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `;
+            let tableBody = table.querySelector('tbody');
+
+            console.log(orders);
+
+            let orderFetches = orders.map(order =>
+                fetch(`/api/get_order?ordernum=${order.ordernum}`)
+                    .then(resp => resp.json())
+                    .then(orderItems => {
+                        let row = document.createElement('tr');
+                        let itemStrings = orderItems.map(item => {
+                            if ('side' in item) {
+                                return `1x ${item.side}`;
+                            } else {
+                                let description = `1x ${item.dough.size} ${item.dough.type} Pizza with ${item.sauce}`;
+                                if (item.toppings.length > 0) {
+                                    description += ' with ' + item.toppings.join(', ');
+                                }
+                                return description;
+                            }
+                        });
+
+                        row.innerHTML = `
+                            <td>${order.ordernum}</td>
+                            <td>${itemStrings.join(', ')}</td>
+                        `;
+
+                        tableBody.appendChild(row);
+                    })
+            );
+
+            Promise.all(orderFetches).then(() => {
+                outputStatsShown.appendChild(table);
+            });
+        });
+    });
+}
+
 
 
 

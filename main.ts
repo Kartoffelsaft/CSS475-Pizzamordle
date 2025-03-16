@@ -82,7 +82,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
     console.log("Call of api endpoint: " + apiEndpoint);
 
     const apiFn = {
-        /**create_order by Ben Findley
+        /**create_order (Crupdate Multiple API) By Ben Findley
          *
          * POST to this api with an array of items in the order (and optionally
          * phone# in query string). This will add the order described to the DB
@@ -325,17 +325,31 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
         },
 
 
-        // TODO: Jac is working on this!
-        'get_popular_side': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Side>> => {
+        /**get_popular_side (Detail API) By Jac Chambers
+         * This API retrieves the most popular sides from the database 
+         * within a specified date range.
+         * @param start: The start date of the range to search for popular sides.
+         * @param end: The end date of the range to search for popular sides.
+         * @param limit: The number of popular sides to return.
+         * @returns A list of tuples, each containing a side.name and the number of times it was ordered.
+         * Example: [
+         *      ['breadsticks', 10], 
+         *      ['cookie', 5], 
+         *      ['2L soda', 3]
+         * ]
+         */
+        'get_popular_side': async (args: URLSearchParams): APIReturn<dt.Popular<dt.Side>> => {
             try {
+                // Get the start date, end date, and limit from the URL parameters
                 const startDate = args.get('start');
                 const endDate = args.get('end');
                 const limit = args.get('limit');
-
+                // If any of the parameters are missing, throw an error
                 if (!startDate) throw new Error('startDate is required');
                 if (!endDate) throw new Error('endDate is required');
                 if (!limit) throw new Error('limit is required');
                 
+                // Query the database for the most popular sides within the specified date range
                 const popularSides = await sql`SELECT Side.name, COUNT(AddedSides.sideID) as "count"
                 FROM AddedSides
                     JOIN Side ON (Side.ID = AddedSides.sideID)
@@ -345,25 +359,41 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                     ORDER BY count DESC
                     LIMIT ${limit};`;
 
+                // Provided there has been no error, return OK, with the popular sides
                 return {ok: popularSides.map((side: any) => [side.name, side.count])};
                 
             } catch (error) {
+                // If there is an error, log it and return an error message
                 console.warn(error);
                 return {err: "Unable to get popular sides. Try again later!"};
             }
         },
 
-        // TODO: Jac is working on this!
-        'get_popular_toppings': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Topping>> => {
+        /**get_popular_toppings (Detail API) By Jac Chambers
+         * This API retrieves the most popular toppings from the database 
+         * within a specified date range.
+         * @param start: The start date of the range to search for popular toppings.
+         * @param end: The end date of the range to search for popular toppings.
+         * @param limit: The number of popular toppings to return.
+         * @returns A list of tuples, each containing a topping.name and the number of times it was ordered.
+         * Example: [
+         *      ['pepperoni', 10],
+         *      ['mushroom', 5],
+         *      ['onion', 3]
+         * ]
+         */
+        'get_popular_toppings': async (args: URLSearchParams): APIReturn<dt.Popular<dt.Topping>> => {
             try {
+                // Get the start date, end date, and limit from the URL parameters
                 const startDate = args.get('start');
                 const endDate = args.get('end');
                 const limit = args.get('limit');
-
+                // If any of the parameters are missing, throw an error
                 if (!startDate) throw new Error('startDate is required');
                 if (!endDate) throw new Error('endDate is required');
                 if (!limit) throw new Error('limit is required');
                 
+                // Query the database for the most popular toppings within the specified date range
                 const popularToppings = await sql`SELECT Topping.name, COUNT(AddedToppings.toppingID) as "count"
                 FROM AddedToppings
                     JOIN Topping ON (Topping.ID = AddedToppings.toppingID)
@@ -374,9 +404,11 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                     ORDER BY count DESC
                     LIMIT ${limit};`;
 
+                // Provided there has been no error, return OK, with the popular toppings
                 return {ok: popularToppings.map((topping: any) => [topping.name, topping.count])};
                 
             } catch (error) {
+                // If there is an error, log it and return an error message
                 console.warn(error);
                 return {err: "Unable to get popular toppings. Try again later!"};
             }
@@ -419,7 +451,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             });
         },
 
-        /** list_available_sides
+        /** list_available_sides (List API)
          * This API lists all available sides in the database for the pizza shop.
          * @params None
          * @returns A list of strings, each representing a side available for purchase.
@@ -434,7 +466,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 return {err: "Unable to get all available sides. Try again later!"};
             }
         },
-        /**list_available_toppings
+        /**list_available_toppings (List API)
          * This API lists all available toppings in the database for the pizza shop.
          * @params None
          * @returns A list of strings, each representing a topping available for purchase.
@@ -449,7 +481,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 return {err: "Unable to get all toppings. Try again later!"};
             }
         },
-        /**list_available_sauces
+        /**list_available_sauces (List API)
          * This API lists all availabvlable sauces in the database for the pizza shop.
          * @params None
          * @returns A list of strings, each representing a sauce available for purchase. 
@@ -464,7 +496,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 return {err: "Unable to get all sauces. Try again later!"};
             }
         },
-        /**list_available_dough
+        /**list_available_dough (List API)
          * This API lists all available dough types in the database for the pizza shop.
          * @params None
          * @returns A list of strings, each representing a dough type available for purchase.
@@ -479,7 +511,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 return {err: "Unable to get all dough types. Try again later!"};
             }
         },
-        /** list_available_sizes
+        /** list_available_sizes (List API)
          * This API lists all available dough sizes in the database for the pizza shop.
          * @params None
          * @returns A list of strings, each representing a dough size available for purchase.
@@ -489,6 +521,27 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             try {
                 const sizes = await sql`SELECT name FROM DoughSize;`;
                 return {ok: sizes.map(size => size.name)};
+            } catch (error) {
+                console.log(error);
+                return {err: "Unable to get all dough sizes. Try again later!"};
+            }
+        },
+
+        'list_orders_made_on': async (args: URLSearchParams, body: any): APIReturn<dt.Order[]> => {
+            try {
+                const date = args.get('date');
+                if (!date) throw new Error('date is required');
+
+
+                const orders = await sql`SELECT Order.orderNumber 
+                    FROM Order
+                    WHERE Order.dateOrdered = ${date}
+                `;
+
+                // return orders
+                
+
+
             } catch (error) {
                 console.log(error);
                 return {err: "Unable to get all dough sizes. Try again later!"};
