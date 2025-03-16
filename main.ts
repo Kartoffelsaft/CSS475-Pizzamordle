@@ -33,7 +33,13 @@ const server = createServer(async (request: IncomingMessage, response: ServerRes
             .on('end', async () => {
                 let bodyJson = undefined;
                 try {bodyJson = await JSON.parse(body);} catch (e) {}
-                response.write(JSON.stringify(await apiCall(url, bodyJson)));
+
+                const apiResponse = await apiCall(url, bodyJson);
+                if (apiResponse.err !== undefined) {
+                    response.statusCode = 400;
+                }
+
+                response.write(JSON.stringify(apiResponse.ok ?? apiResponse.err));
                 response.end();
             });
 
@@ -61,21 +67,44 @@ server.listen(port, () => {
     console.log();
 });
 
-async function apiCall(url: URL, body: any): Promise<any> {
+type APISuccess<T> = {
+    ok: T;
+    err?: never;
+};
+type APIErr = {
+    ok?: never;
+    err: string;
+};
+type APIReturn<T> = Promise<APISuccess<T> | APIErr>;
+
+async function apiCall(url: URL, body: any): APIReturn<any> {
     const apiEndpoint = url.pathname.substring(url.pathname.indexOf('/', 1) + 1)
     console.log("Call of api endpoint: " + apiEndpoint);
 
     const apiFn = {
         // TODO: dummy function
-        'create_order': async (args: URLSearchParams, body: any): Promise<String> => {
-            let order: dt.Order = await JSON.parse(args.get('order'));
-            let phone: String | null = args.get('phone');
+        'create_order': async (args: URLSearchParams, body: any): APIReturn<String> => {
+            try {
+                let order: dt.Order = await JSON.parse(args.get('order'));
+                let phone: string | null = args.get('phone');
+                console.log(phone);
 
-            let query = await sql`
-                SELECT '2' AS ordernumber;
-            `;
+                let [orderid] = await sql.begin(async sql => { // BEGIN TRANSACTION
+                    const [orderid] = await sql`
+                        INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) 
+                        VALUES (${phone}, NOW(), 'ORD10290')
+                        RETURNING id
+                        ;
+                    `;
 
-            return query[0].ordernumber;
+                    return [orderid];
+                });
+
+                return {ok: ''};
+            } catch (e) {
+                console.error("create_order failed: " + e);
+                return {err: "order failed"};
+            }
         },
 
         /**get_order (Detail API) By Karsten Schmidt
@@ -105,7 +134,7 @@ async function apiCall(url: URL, body: any): Promise<any> {
                     }
                 }
         */
-        'get_order': async (args: URLSearchParams, body: any): Promise<dt.PlacedOrder> => {
+        'get_order': async (args: URLSearchParams, body: any): APIReturn<dt.PlacedOrder> => {
             /* 
             Query to get specific order pizza info:
             SELECT ordernumber, phonenumber, dateordered, pizzaNumber, DS.name AS "doughSize", DT.name AS "doughType", ST.name AS "sauceType", T.name AS "Topping"
@@ -232,42 +261,42 @@ async function apiCall(url: URL, body: any): Promise<any> {
         },
 
         // TODO: dummy function, implement real database connection
-        'get_latest_ordernum': async (args: URLSearchParams, body: any): Promise<String> => {
+        'get_latest_ordernum': async (args: URLSearchParams, body: any): APIReturn<string> => {
             let phoneNum: String | null = args.get('phone');
-            return new Promise((resolve) => resolve('2'));
+            return new Promise((resolve) => resolve({ok: '2'}));
         },
 
         // TODO: dummy function, implement real database connection
-        'get_popular_sides': async (args: URLSearchParams, body: any): Promise<dt.Popular<dt.Side>> => {
+        'get_popular_sides': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Side>> => {
             return new Promise((resolve) => {
-                resolve([
+                resolve({ok: [
                     ['cookie', 58],
                     ['breadsticks', 33],
                     ['2L soda', 7],
-                ]);
+                ]});
             });
         },
 
         // TODO: dummy function, implement real database connection
-        'get_popular_toppings': async (args: URLSearchParams, body: any): Promise<dt.Popular<dt.Topping>> => {
+        'get_popular_toppings': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Topping>> => {
             return new Promise((resolve) => {
-                resolve([
+                resolve({ok: [
                     ['pepperoni', 101],
                     ['mushroom', 34],
-                ]);
+                ]});
             });
         },
 
         // TODO: dummy function, implement real database connection
-        'get_popular_dough': async (args: URLSearchParams, body: any): Promise<dt.Popular<dt.Dough>> => {
+        'get_popular_dough': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Dough>> => {
             return new Promise((resolve) => {
-                resolve([
+                resolve({ok: [
                     [{type: 'regular', size: 'large'}, 43],
                     [{type: 'regular', size: 'small'}, 33],
                     [{type: 'stuffed', size: 'large'}, 20],
                     [{type: 'pretzel', size: 'personal'}, 5],
                     [{type: 'pretzel', size: 'medium'}, 1],
-                ]);
+                ]});
             });
         },
 
@@ -277,13 +306,13 @@ async function apiCall(url: URL, body: any): Promise<any> {
          * @returns A list of strings, each representing a side available for purchase.
          * Example: ['cookie', 'breadsticks', '2L soda']
         */
-        'list_available_sides': async (args: URLSearchParams, body: any): Promise<dt.Side[]> => {
+        'list_available_sides': async (args: URLSearchParams, body: any): APIReturn<dt.Side[]> => {
             try {
                 const sides = await sql`SELECT name FROM Side;`;
-                return sides.map(side => side.name);
+                return {ok: sides.map(side => side.name)};
             } catch (error) {
                 console.log(error);
-                return [];
+                return {err: "failed"};
             }
         },
         /**list_available_toppings
@@ -292,13 +321,13 @@ async function apiCall(url: URL, body: any): Promise<any> {
          * @returns A list of strings, each representing a topping available for purchase.
          * Example: ['pepperoni', 'mushroom', 'onion']
          */
-        'list_available_toppings': async (args: URLSearchParams, body: any): Promise<dt.Topping[]> => {
+        'list_available_toppings': async (args: URLSearchParams, body: any): APIReturn<dt.Topping[]> => {
             try { 
                 const toppings = await sql`SELECT name FROM Topping;`;
-                return toppings.map(topping => topping.name);
+                return {ok: toppings.map(topping => topping.name)};
             } catch (error) {
                 console.log(error);
-                return [];
+                return {err: "failed"};
             }
         },
         /**list_available_sauces
@@ -307,13 +336,13 @@ async function apiCall(url: URL, body: any): Promise<any> {
          * @returns A list of strings, each representing a sauce available for purchase. 
          * Example: ['marinara', 'pesto', 'alfredo']
          */
-        'list_available_sauces': async (args: URLSearchParams, body: any): Promise<dt.Sauce[]> => {
+        'list_available_sauces': async (args: URLSearchParams, body: any): APIReturn<dt.Sauce[]> => {
             try {
                 const sauces = await sql`SELECT name FROM SauceType;`;
-                return sauces.map(sauce => sauce.name);
+                return {ok: sauces.map(sauce => sauce.name)};
             } catch (error) {
                 console.log(error);
-                return [];
+                return {err: "failed"};
             }
         },
         /**list_available_dough
@@ -322,13 +351,13 @@ async function apiCall(url: URL, body: any): Promise<any> {
          * @returns A list of strings, each representing a dough type available for purchase.
          * Example: ['regular', 'stuffed', 'pretzel']
          */
-        'list_available_dough': async (args: URLSearchParams, body: any): Promise<dt.DoughType[]> => {
+        'list_available_dough': async (args: URLSearchParams, body: any): APIReturn<dt.DoughType[]> => {
             try {
                 const doughs = await sql`SELECT name FROM DoughType;`;
-                return doughs.map(dough => dough.name);
+                return {ok: doughs.map(dough => dough.name)};
             } catch (error) {
                 console.log(error);
-                return [];
+                return {err: "failed"};
             }
         },
         /** list_available_sizes
@@ -337,13 +366,13 @@ async function apiCall(url: URL, body: any): Promise<any> {
          * @returns A list of strings, each representing a dough size available for purchase.
          * Example: ['small', 'medium', 'large']
          */
-        'list_available_sizes': async (args: URLSearchParams, body: any): Promise<dt.DoughSize[]> => {
+        'list_available_sizes': async (args: URLSearchParams, body: any): APIReturn<dt.DoughSize[]> => {
             try {
                 const sizes = await sql`SELECT name FROM DoughSize;`;
-                return sizes.map(size => size.name);
+                return {ok: sizes.map(size => size.name)};
             } catch (error) {
                 console.log(error);
-                return [];
+                return {err: "failed"};
             }
         },
     }[apiEndpoint];
