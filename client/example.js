@@ -189,17 +189,19 @@ function displayPopular(items, what) {
 }
 
 function popularQueryParams() {
-    let params = [];
-
-    let limit = document.getElementById('popLimit').value;
-    params.push(`limit=${encodeURIComponent(limit)}`);
+    const params = new URLSearchParams();
+    params.set('limit', document.getElementById('popLimit').value);
 
     if (document.getElementById('popAllTime').checked) {
+        params.set('start', '578-01-01');
+        params.set('end', '9999-12-31');
     } else {
         // TODO: handle start/end dates
+        params.set('start', document.getElementById('popStart').value);
+        params.set('end', document.getElementById('popEnd').value);
     }
 
-    return params.join('&');
+    return params.toString();
 }
 
 function getPopularToppings() {
