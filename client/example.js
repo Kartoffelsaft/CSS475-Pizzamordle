@@ -8,20 +8,54 @@ var dough = [];
 var sizes = [];
 
 fetch('/api/list_available_sides').then((response) => {
-    response.json().then((avail_sides) => sides = avail_sides);
+    response.json().then((avail_sides) => {
+        sides = avail_sides
+        fillAllSelections('sides', sides);
+    });
 });
 fetch('/api/list_available_toppings').then((response) => {
-    response.json().then((avail_toppings) => toppings = avail_toppings);
+    response.json().then((avail_toppings) => {
+        toppings = avail_toppings
+        fillAllSelections('toppings', toppings);
+    });
 });
 fetch('/api/list_available_sauces').then((response) => {
-    response.json().then((avail_sauces) => sauces = avail_sauces);
+    response.json().then((avail_sauces) => {
+        sauces = avail_sauces
+        fillAllSelections('sauces', sauces);
+    });
 });
 fetch('/api/list_available_dough').then((response) => {
-    response.json().then((avail_dough) => dough = avail_dough);
+    response.json().then((avail_dough) => {
+        dough = avail_dough
+        fillAllSelections('dough', dough);
+    });
 });
 fetch('/api/list_available_sizes').then((response) => {
-    response.json().then((avail_sizes) => sizes = avail_sizes);
+    response.json().then((avail_sizes) => {
+        sizes = avail_sizes
+        fillAllSelections('sizes', sizes);
+    });
 });
+
+/**
+ * @param {string} what
+ * @param {string[]} options
+ */
+function fillAllSelections(what, options) {
+    let optionElems = options.map((option) => {
+        let elem = document.createElement('option');
+        elem.innerText = option;
+        elem.value = option;
+        return elem;
+    });
+
+    for (let selection of document.getElementsByClassName(what)) {
+        if (selection.tagName === 'SELECT') {
+            optionElems.forEach((elem) => selection.add(elem));
+        }
+    }
+}
 
 //                            --- ORDERING MENU ---                           //
 // -------------------------------------------------------------------------- //
@@ -243,6 +277,9 @@ function getPopularCombo() {
     });
 }
 
+/**
+ * @param {[Date, string][]} data
+ */
 function displayTrend(data) {
     outputStatsShown.innerHTML = '';
     if (data.length <= 0) {
@@ -263,16 +300,19 @@ function displayTrend(data) {
     for (let [day, datum] of data) {
         if (datum > max) max = datum;
     }
+    let earliest = data[0][0].valueOf();
+    let latest = data[data.length-1][0].valueOf();
+    let timeSpan = latest - earliest;
 
-    const iToX = (i) => i * graphCanvas.width / (data.length-1);
-    const vToY = (v) => graphCanvas.height - (v * graphCanvas.height / max);
+    const dateToX = (d) => (d.valueOf()-earliest) * graphCanvas.width / timeSpan;
+    const valueToY = (v) => graphCanvas.height - (v * graphCanvas.height / max);
 
     ctx.strokeStyle = '#117';
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(iToX(0), vToY(data[0][1]));
+    ctx.moveTo(dateToX(data[0][0]), valueToY(data[0][1]));
     for (let i = 1; i < data.length; i++) {
-        ctx.lineTo(iToX(i), vToY(data[i][1]));
+        ctx.lineTo(dateToX(data[i][0]), valueToY(data[i][1]));
     }
     ctx.stroke();
 
@@ -280,8 +320,44 @@ function displayTrend(data) {
 }
 
 function getDailyToppingSales() {
-    fetch('/api/daily_topping_sales').then((response) => {
+    let params = new URLSearchParams();
+
+    let selectionTopping = document.getElementById('toppingName');
+    params.append('topping', selectionTopping.children[selectionTopping.selectedIndex].value);
+
+    if (document.getElementById('topAllTime').checked) {
+        params.set('start', '578-01-01');
+        params.set('end', '9999-12-31');
+    } else {
+        params.set('start', document.getElementById('topStartDate').value);
+        params.set('end', document.getElementById('topEndDate').value);
+    }
+
+    fetch(`/api/daily_topping_sales?${params.toString()}`).then((response) => {
         response.json().then((data) => {
+            data = data.map(([date, value]) => [new Date(date), value]);
+            displayTrend(data);
+        });
+    });
+}
+
+function getDailySauceSales() {
+    let params = new URLSearchParams();
+
+    let selectionTopping = document.getElementById('toppingName');
+    params.append('sauce', selectionTopping.children[selectionTopping.selectedIndex].value);
+
+    if (document.getElementById('sauceAllTime').checked) {
+        params.set('start', '578-01-01');
+        params.set('end', '9999-12-31');
+    } else {
+        params.set('start', document.getElementById('sauceStartDate').value);
+        params.set('end', document.getElementById('sauceEndDate').value);
+    }
+
+    fetch(`/api/daily_topping_sales?${params.toString()}`).then((response) => {
+        response.json().then((data) => {
+            data = data.map(([date, value]) => [new Date(date), value]);
             displayTrend(data);
         });
     });
