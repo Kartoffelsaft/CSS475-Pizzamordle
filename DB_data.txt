@@ -53,8 +53,8 @@ INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-5678', 
 INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-8765', '2025-03-03', 'ORD003');
 INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-4321', '2025-03-04', 'ORD004');
 INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-0001', '2025-03-05', 'ORD005');
-INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-0002', '2025-03-06', 'ORD006');
-INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-1010', '2025-03-07', 'ORD007');
+INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-0002', '2025-03-05', 'ORD006');
+INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-1010', '2025-03-05', 'ORD007');
 INSERT INTO "Order" (phoneNumber, dateOrdered, orderNumber) VALUES ('555-2020', '2025-03-08', 'ORD008');
 
 INSERT INTO AddedSides (orderID, sideID, quantity) VALUES (1, 1, 2);

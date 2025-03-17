@@ -196,7 +196,6 @@ function popularQueryParams() {
         params.set('start', '578-01-01');
         params.set('end', '9999-12-31');
     } else {
-        // TODO: handle start/end dates
         params.set('start', document.getElementById('popStart').value);
         params.set('end', document.getElementById('popEnd').value);
     }
@@ -287,5 +286,66 @@ function getDailyToppingSales() {
         });
     });
 }
+
+function listOrdersMadeOn() {
+    console.log(document.getElementById('orderDate').value);
+    fetch(
+        `/api/list_orders_made_on?date=${document.getElementById('orderDate').value}`
+    ).then((resp) => {
+        resp.json().then((orderNums) => {
+            const realOrderNumbers = orderNums.map(orderNumber => orderNumber.orderNumber);
+            console.log(realOrderNumbers);
+
+            outputStatsShown.innerHTML = '';
+
+            let table = document.createElement('table');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th scope='col'>Order Number</th>
+                        <th scope='col'>Items</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `;
+            let tableBody = table.querySelector('tbody');
+
+            let orderFetches = realOrderNumbers.map(orderNum =>
+                fetch(`/api/get_order?orderNumber=${orderNum}`) // Fix: Use 'ordernum'
+                    .then(resp => resp.json())
+                    .then(order => { // Fix: Access order.contents, not orderItems
+                        console.log(order.contents);
+                        let row = document.createElement('tr');
+                        let itemStrings = order.contents.map(item => {
+                            // if the item is a side...
+                            if (item.quantity) {
+                                return `${item.quantity}x ${item.side}`;
+                            } 
+                            // otherwise it's a pizza
+                            else {
+                                let description = `1x ${item.dough.size} ${item.dough.type} Pizza with ${item.sauce}`;
+                                if (item.toppings) {
+                                    description += ', topped with ' + item.toppings.join(', ');
+                                }
+                                return description;
+                            }
+                        });
+
+                        row.innerHTML = `
+                            <td>${orderNum}</td>
+                            <td>${itemStrings.join(', ')}</td>
+                        `;
+
+                        tableBody.appendChild(row);
+                    })
+            );
+
+            Promise.all(orderFetches).then(() => {
+                outputStatsShown.appendChild(table);
+            });
+        });
+    });
+}
+
 
 
