@@ -413,6 +413,13 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
 
         // TODO: dummy function, implement real database connection
         'get_popular_dough': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Dough>> => {
+            const get_popular_dough = await sql`SELECT dt.name AS type_name, ds.name AS size_name, COUNT(*) AS dough_count
+            FROM Pizza p
+                JOIN Dough d ON p.doughID = d.ID
+                JOIN DoughType dt ON d.doughTypeID = dt.ID
+                JOIN DoughSize ds ON d.doughSizeID = ds.ID
+            GROUP BY dt.name, ds.name
+            ORDER BY dough_count DESC;`;
             return new Promise((resolve) => {
                 resolve({ok: [
                     [{type: 'regular', size: 'large'}, 43],
@@ -574,6 +581,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             try {
                 const orderNumbers = await sql<{ orderNumber: string }[]>`
                     SELECT "Order".orderNumber AS "orderNumber" FROM "Order"
+                    WHERE "Order".dateOrdered = ${date}
                 `;
                 
                 return { ok: orderNumbers };
@@ -583,10 +591,15 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 return { err: `Unable to get all orders made on ${date}. Try again later!` };
             }
         },
-        /** get_revenue_in_range
+        /** get_revenue_in_range (Complex Query) by Karsten Schmidt
+         *  GET API returning a dollar amount ($#) for a given range, requiring both start and end dates.
          * 
+         *  This API returns the total revenue within a given range. 
+         *  @params start date, end date
+         *  @returns string revenue (rounded to 2 decimal places)
+         *  Example: 20421.28
          */
-        'get_revenue_in_range': async (args: URLSearchParams, body: any): APIReturn<{ orderNumber: string }[]> => {
+        'get_revenue_in_range': async (args: URLSearchParams, body: any): APIReturn<{ Revenue: number }[]> => {
             const start = args.get('start');
             const end = args.get('end');
 
@@ -594,7 +607,42 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 return { err: "Start AND end date parameter are required" };
             }
             try {
+                // pizza revenue
+                const pizzaRevenueQuery = await sql`SELECT (DS.diameterInches * DT.pricePerInch) AS "doughPrice",  
+                ST.price AS "saucePrice", T.price AS "toppingPrice" 
+                FROM Pizza P
+                    JOIN "Order" O ON (O.ID = P.orderID)
+                    JOIN Sauce S ON (P.sauceID = S.ID)
+                    JOIN SauceType ST ON (S.sauceTypeID = ST.ID)
+                    JOIN Dough D ON (P.doughID = D.ID)
+                    JOIN DoughSize DS ON (D.doughSizeID = DS.ID)
+                    JOIN DoughType DT ON (D.doughTypeID = DT.ID)
+                    JOIN AddedToppings AD ON (AD.pizzaID = P.ID)
+                    JOIN Topping T ON (T.ID = AD.toppingID)
+                WHERE O.dateOrdered BETWEEN ${start} AND ${end};`;
+
+                // side revenue
+                const sideRevenueQuery = await sql`SELECT S.price AS "sidePrice", ADS.quantity AS "quantity"
+                FROM "Order" O
+                    JOIN AddedSides ADS ON (ADS.orderID = O.ID)
+                    JOIN Side S ON (S.ID = ADS.sideID)
+                WHERE O.dateOrdered BETWEEN ${start} AND ${end};`;
+
+                // total revenue
+                let totalRevenue = 0;
                 
+                // add pizza revenue
+                pizzaRevenueQuery.forEach(pizza => {{
+                    totalRevenue += Number(pizza.doughPrice as number) + Number(pizza.saucePrice as number) + Number(pizza.toppingPrice as number);
+                }});
+                
+                // add side revenue
+                sideRevenueQuery.forEach(side => {{
+                    totalRevenue += Number(side.sidePrice as number) * Number(side.quantity as number);
+                }});
+
+                return { ok: [{ Revenue: totalRevenue }] };
+
             } catch (error) {
                 return { err: `Unable to get the revenue within this range` };
             }

@@ -28,3 +28,4 @@ documentation about how a given API works look at it's JSDoc/doxygen doc in
 | `daily_topping_sales`     | List          | *unfinished* | get sales of a specific topping per day             |
 | `daily_sauce_sales`       | List          | *unfinished* | get sales of a specific sauce per day               |
 | `list_orders_made_on`     | List          | Jac          | get all ordernums for a particular day              |
+| `get_revenue_in_range`    | Complex Query | Karsten      | get the total revenue for a given range             |

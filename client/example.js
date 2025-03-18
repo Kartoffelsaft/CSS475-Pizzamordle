@@ -172,6 +172,11 @@ function submitOrder() {
 
     console.log(orderItems);
 
+    if (orderItems.length == 0) {
+        alert("Orders with no contents are not allowed.");
+        return;
+    }
+
     fetch("/api/create_order", {
         method: "POST",
         body: JSON.stringify(orderItems),
@@ -185,7 +190,11 @@ function submitOrder() {
 // This feels morally wrong, but we aren't calling the server 
 // before this point so it should be fine
 function cancelOrder() {
-    orderItems.innerHTML = '';
+    if (confirm("Are you sure you want to cancel this order?")) {
+        orderItems.innerHTML = '';
+    }
+    return;
+    
 }
 
 //                     --- DASHBOARD & STATS MENU ---                         //
@@ -341,6 +350,11 @@ function getDailyToppingSales() {
     });
 }
 
+function displayError(text) {
+    const outputStatsDisplay = document.getElementById('outputStatsDisplay');
+    outputStatsDisplay.innerText = text;
+}
+
 function getDailySauceSales() {
     let params = new URLSearchParams();
 
@@ -365,6 +379,11 @@ function getDailySauceSales() {
 
 function listOrdersMadeOn() {
     console.log(document.getElementById('orderDate').value);
+    if (document.getElementById('orderDate').value == '') {
+        displayError("Order date required.");
+        return;
+    }
+
     fetch(
         `/api/list_orders_made_on?date=${document.getElementById('orderDate').value}`
     ).then((resp) => {
@@ -421,6 +440,18 @@ function listOrdersMadeOn() {
             });
         });
     });
+}
+
+function getRevenue() {
+    fetch(`/api/get_revenue_in_range?start=${document.getElementById('revStart').value}&end=${document.getElementById('revEnd').value}`)
+        .then((resp) => {
+            resp.text()
+                .then((totalRevenue) => {
+                    document.getElementById('revenueOutput').innerText = totalRevenue;
+                }).catch(error => {
+                    // use Jac's display error functionality
+                })
+        });
 }
 
 
