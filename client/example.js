@@ -92,10 +92,15 @@ function dropdownFromList(list, name) {
  */
 function addPizza() {
     let newPizza = document.createElement('li');
-    newPizza.className = 'pizza'
+    newPizza.className = 'pizza';
 
     let deleteButton = document.createElement('button');
-    deleteButton.onclick = () => {newSide.remove();};
+    deleteButton.onclick = () => {
+        for (child in newPizza.children) {
+            child.innerHTML = '';
+        }
+        newPizza.remove();
+    };
     deleteButton.innerText = 'X';
     deleteButton.className = 'deleteButton';
     newPizza.appendChild(deleteButton);
@@ -226,6 +231,13 @@ var outputStatsShown = document.getElementById('outputStatsDisplay');
  * @param {string} what
  */
 function displayPopular(items, what) {
+    if (!items) {
+        displayError("Unknown Error: displayPopular(items, what): items was null");
+    }
+    if (!what) {
+        displayError("Unknown Error: displayPopular(items, what): what was null");
+    }
+
     outputStatsShown.innerHTML = '';
 
     let table = document.createElement('table');
@@ -318,11 +330,12 @@ function getPopularCombo() {
  * @param {[Date, string][]} data
  */
 function displayTrend(data) {
-    outputStatsShown.innerHTML = '';
     if (data.length <= 0) {
-        outputStatsShown.innerText = 'no trend data';
+        displayError('no trend data');
         return;
     }
+
+    outputStatsShown.innerHTML = '';
 
     let graphCanvas = document.createElement('canvas');
     graphCanvas.width = 400;
@@ -361,6 +374,11 @@ function getDailyToppingSales() {
     let params = new URLSearchParams();
 
     let selectionTopping = document.getElementById('toppingName');
+
+    if (!selectionTopping) {
+        displayError("Topping is required for getDailyToppingSales");
+    }
+
     params.append('topping', selectionTopping.children[selectionTopping.selectedIndex].value);
 
     if (document.getElementById('topAllTime').checked) {
@@ -381,8 +399,13 @@ function getDailyToppingSales() {
 function getDailySauceSales() {
     let params = new URLSearchParams();
 
-    let selectionTopping = document.getElementById('toppingName');
-    params.append('sauce', selectionTopping.children[selectionTopping.selectedIndex].value);
+    let selectionSauce = document.getElementById('toppingName');
+
+    if (!selectionSauce) {
+        displayError("Sauce is required for getDailySauceSales");
+    }
+
+    params.append('sauce', selectionSauce.children[selectionSauce.selectedIndex].value);
 
     if (document.getElementById('sauceAllTime').checked) {
         params.set('start', '578-01-01');
@@ -471,14 +494,21 @@ function listOrdersMadeOn() {
 }
 
 function getRevenue() {
+    if (!document.getElementById('revStart').value) {
+        displayError("Revenue start date is required for getRevenue()");
+    }
+
     fetch(`/api/get_revenue_in_range?start=${document.getElementById('revStart').value}&end=${document.getElementById('revEnd').value}`)
         .then((resp) => {
-            resp.text()
+            resp.json()
                 .then((totalRevenue) => {
-                    document.getElementById('revenueOutput').innerText = totalRevenue;
+                    let revenue = parseFloat(totalRevenue[0].Revenue).toFixed(2);
+                    document.getElementById('revenueOutput').innerText = revenue;
                 }).catch(error => {
-                    // use Jac's display error functionality
+                    displayError("Unable to fetch revenue. Please try again later.");
                 })
+        }).catch(error => {
+            displayError("Please input valid start and end dates to get the revenue for that range. Please try again later.");
         });
 }
 

@@ -411,7 +411,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             }
         },
 
-        // TODO: dummy function, implement real database connection
+        //  dummy function, implement real database connection
         'get_popular_dough': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Dough>> => {
             const get_popular_dough = await sql`SELECT dt.name AS type_name, ds.name AS size_name, COUNT(*) AS dough_count
             FROM Pizza p
@@ -453,8 +453,9 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                     GROUP BY sauce_name
                     ORDER BY count DESC;`;
 
-                const popularSauces: dt.Popular<dt.Sauce>= result.rows.map((row: any) => [row.sauve_name, parseInt(row.count, 10)]);
-                return {ok: popularSauces}
+                //const popularSauces: dt.Popular<dt.Sauce>= result.rows.map((row: any) => [row.sauve_name, parseInt(row.count, 10)]);
+                //return {ok: popularSauces}
+                return {ok: result.map((sauce: any) => [sauce.name, sauce.count])};
             } catch (error) {
                 console.log(error);
                 return {err: "Unable to get popular sauces. Try again later!"};
