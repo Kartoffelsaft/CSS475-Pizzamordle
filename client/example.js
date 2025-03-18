@@ -341,6 +341,11 @@ function getDailyToppingSales() {
     });
 }
 
+function displayError(text) {
+    const outputStatsDisplay = document.getElementById('outputStatsDisplay');
+    outputStatsDisplay.innerText = text;
+}
+
 function getDailySauceSales() {
     let params = new URLSearchParams();
 
@@ -365,6 +370,11 @@ function getDailySauceSales() {
 
 function listOrdersMadeOn() {
     console.log(document.getElementById('orderDate').value);
+    if (document.getElementById('orderDate').value == '') {
+        displayError("Order date required.");
+        return;
+    }
+
     fetch(
         `/api/list_orders_made_on?date=${document.getElementById('orderDate').value}`
     ).then((resp) => {
