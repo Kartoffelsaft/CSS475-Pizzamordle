@@ -415,10 +415,10 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             }
         },
 
-        /** get_popular_sauce (List API)
-         * This API lists the popular sauces 
+        /** get_popular_dough (List API)
+         * This API lists the popular doughs 
          * @params None
-         * @returns A list of strings, each representing popular sauces.
+         * @returns A list of strings, each representing popular doughs.
          * Example: [{type: 'regular', size: 'large'}, 43],
                     [{type: 'regular', size: 'small'}, 33],
                     [{type: 'stuffed', size: 'large'}, 20],
@@ -427,20 +427,36 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
         */
         'get_popular_dough': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Dough>> => {
             try {
-                const result = await sql `
-                    SELECT dt.name AS type_name, ds.name AS size_name, COUNT(*) AS dough_count
+                // Get the start date, end date, and limit from the URL parameters
+                const startDate = args.get('start');
+                const endDate = args.get('end');
+                const limit = args.get('limit');
+
+                // If any of the parameters are missing, throw an error
+                if (!startDate) throw new Error('startDate is required');
+                if (!endDate) throw new Error('endDate is required');
+                if (!limit) throw new Error('limit is required');
+
+                const result = await sql`
+                    SELECT dt.name AS "doughType", ds.name AS "doughSize", COUNT(*) AS "count"
                     FROM Pizza p
                     JOIN Dough d ON p.doughID = d.ID
                     JOIN DoughType dt ON d.doughTypeID = dt.ID
                     JOIN DoughSize ds ON d.doughSizeID = ds.ID
+                    JOIN "Order" o ON p.orderID = o.ID
+                    WHERE o.dateOrdered BETWEEN ${startDate} AND ${endDate}
                     GROUP BY dt.name, ds.name
-                    ORDER BY dough_count  DESC;`;
-                return {ok: result.map((sauce: any) => [sauce.name, sauce.count])};
+                    ORDER BY "count" DESC
+                    LIMIT ${limit};`;
+
+                return {ok: result.map((dough: any) => [{type: dough.doughType, size: dough.doughSize}, dough.count])};
+
             } catch (error) {
                 console.log(error);
-                return {err: "Unable to get popular sauces. Try again later!"};
+                return {err: "Unable to get popular doughs. Try again later!"};
             }
         },
+
 
         /** get_popular_sauce (List API)
          * This API lists the popular sauces 

@@ -253,9 +253,10 @@ function displayPopular(items, what) {
 
     for (let [item, quantity] of items) {
         let row = document.createElement('tr');
+        let itemName = item.name || (item.size + ", " + item.type) || 'Unknown Item'; // Adjust this line depending on the item structure
         row.innerHTML = `
             <tr>
-            <td>${item}</td>
+            <td>${itemName}</td>
             <td>${quantity}</td>
             </tr>
         `;
