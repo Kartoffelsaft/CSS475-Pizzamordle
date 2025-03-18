@@ -578,11 +578,11 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             }
         },
         /** get_revenue_in_range (Complex Query) by Karsten Schmidt
-         *  GET API returning a dollar amount ($#) for 
-         *  This API lists all available dough sizes in the database for the pizza shop.
-         *  @params None
-         *  @returns A list of strings, each representing a dough size available for purchase.
-         *  Example: ['small', 'medium', 'large']
+         *  GET API returning a dollar amount ($#) for a given range, requiring both start and end dates.
+         *  This API returns the total revenue within a given range. 
+         *  @params start date, end date
+         *  @returns string revenue (rounded to 2 decimal places)
+         *  Example: 20421.28
          */
         'get_revenue_in_range': async (args: URLSearchParams, body: any): APIReturn<{ Revenue: string }[]> => {
             const start = args.get('start');
