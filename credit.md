@@ -17,8 +17,8 @@ documentation about how a given API works look at it's JSDoc/doxygen doc in
 | `get_order`               | Detail        | Karsten      | get details for an order                            |
 | `get_popular_side`        | List          | Jac          | number of sales for each different side             |
 | `get_popular_toppings`    | List          | Jac          | number of sales for each different topping          |
-| `get_popular_dough`       | List          | *unfinished* | number of sales for each different dough            |
-| `get_popular_sauce`       | List          | *unfinished* | number of sales for each different sauce            |
+| `get_popular_dough`       | List          | keisuke      | number of sales for each different dough            |
+| `get_popular_sauce`       | List          | keisuke      | number of sales for each different sauce            |
 | `get_popular_combo`       | List          | *unfinished* | number of sales for each different pair of toppings |
 | `list_available_sides`    | List          | *uncredited* | all sides currently sold / recognized by the DB     |
 | `list_available_toppings` | List          | *uncredited* | all toppings currently sold / recognized by the DB  |
@@ -28,3 +28,4 @@ documentation about how a given API works look at it's JSDoc/doxygen doc in
 | `daily_topping_sales`     | List          | *unfinished* | get sales of a specific topping per day             |
 | `daily_sauce_sales`       | List          | *unfinished* | get sales of a specific sauce per day               |
 | `list_orders_made_on`     | List          | Jac          | get all ordernums for a particular day              |
+| `get_revenue_in_range`    | Complex Query | Karsten      | get the total revenue for a given range             |
