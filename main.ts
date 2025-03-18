@@ -431,21 +431,34 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             });
         },
 
-        // TODO: dummy function, implement real database connection
-        'get_popular_sauce': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Sauce>> => {
-            const get_popular_sauce = await sql`SELECT st.name, COUNT(*) as sauce_count
-        FROM Pizza p 
-            JOIN Sauce s ON p.sauceIS = s.ID
-            JOIN SauceType st ON s.sauceTypeID = st.ID
-        GROUP BY st.name
-        ORDER BY sauce_count DESC;`;
-            return new Promise((resolve) => {
-                resolve({ok: [
-                    ['tomato', 73],
+        /** get_popular_sauce (List API)
+         * This API lists the popular sauces 
+         * @params None
+         * @returns A list of strings, each representing popular sauces.
+         * Example: ['tomato', 73],
                     ['pesto', 13],
                     ['alfredo', 8],
-                ]});
-            });
+        */
+        'get_popular_sauce': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Sauce>> => {
+            try {
+                const result = await sql `
+                    WITH PizzaSauce AS (
+                        SELECT p.ID AS pizza_id, st.name AS sauce_name
+                        FROM Pizza p
+                        JOIN Sauce s ON p.sauceID = s.ID
+                        JOIN SauceType st ON s.sauceTypeID = st.ID
+                    )'
+                    SELECT sauce_name, COUNT(*) AS count
+                    FROM PizzaSauce
+                    GROUP BY sauce_name
+                    ORDER BY count DESC;`;
+
+                const popularSauces: dt.Popular<dt.Sauce>= result.rows.map((row: any) => [row.sauve_name, parseInt(row.count, 10)]);
+                return {ok: popularSauces}
+            } catch (error) {
+                console.log(error);
+                return {err: "Unable to get popular sauces. Try again later!"};
+            }
         },
 
         // TODO: dummy function, implement real database connection
@@ -568,6 +581,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             try {
                 const orderNumbers = await sql<{ orderNumber: string }[]>`
                     SELECT "Order".orderNumber AS "orderNumber" FROM "Order"
+                    WHERE "Order".dateOrdered = ${date}
                 `;
                 
                 return { ok: orderNumbers };
