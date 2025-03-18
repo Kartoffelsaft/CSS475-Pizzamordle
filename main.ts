@@ -616,14 +616,17 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 // total revenue
                 let totalRevenue = 0;
 
+                // add pizza revenue
                 pizzaRevenueQuery.forEach(pizza => {{
                     totalRevenue += (pizza.doughPrice as number) + (pizza.saucePrice as number) + (pizza.toppingPrice as number);
                 }});
 
+                // add side revenue
                 sideRevenueQuery.forEach(side => {{
                     totalRevenue += (side.sidePrice as number) * (side.quantity as number);
                 }});
 
+                // convert to a string to make it easier for the front end devs
                 const ret_val = totalRevenue.toFixed(2);
 
                 return { ok: [{ Revenue: ret_val }] };
