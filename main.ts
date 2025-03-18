@@ -415,27 +415,34 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             }
         },
 
-        //  dummy function, implement real database connection
-        'get_popular_dough': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Dough>> => {
-            const get_popular_dough = await sql`SELECT dt.name AS type_name, ds.name AS size_name, COUNT(*) AS dough_count
-            FROM Pizza p
-                JOIN Dough d ON p.doughID = d.ID
-                JOIN DoughType dt ON d.doughTypeID = dt.ID
-                JOIN DoughSize ds ON d.doughSizeID = ds.ID
-            GROUP BY dt.name, ds.name
-            ORDER BY dough_count DESC;`;
-            return new Promise((resolve) => {
-                resolve({ok: [
-                    [{type: 'regular', size: 'large'}, 43],
+        /** get_popular_sauce (List API) By Keisuke Maeda
+         * This API lists the popular sauces 
+         * @params None
+         * @returns A list of strings, each representing popular sauces.
+         * Example: [{type: 'regular', size: 'large'}, 43],
                     [{type: 'regular', size: 'small'}, 33],
                     [{type: 'stuffed', size: 'large'}, 20],
                     [{type: 'pretzel', size: 'personal'}, 5],
                     [{type: 'pretzel', size: 'medium'}, 1],
-                ]});
-            });
+        */
+        'get_popular_dough': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Dough>> => {
+            try {
+                const result = await sql `
+                    SELECT dt.name AS type_name, ds.name AS size_name, COUNT(*) AS dough_count
+                    FROM Pizza p
+                    JOIN Dough d ON p.doughID = d.ID
+                    JOIN DoughType dt ON d.doughTypeID = dt.ID
+                    JOIN DoughSize ds ON d.doughSizeID = ds.ID
+                    GROUP BY dt.name, ds.name
+                    ORDER BY dough_count  DESC;`;
+                return {ok: result.map((sauce: any) => [sauce.name, sauce.count])};
+            } catch (error) {
+                console.log(error);
+                return {err: "Unable to get popular sauces. Try again later!"};
+            }
         },
 
-        /** get_popular_sauce (List API)
+        /** get_popular_sauce (List API) By Keisuke Maeda
          * This API lists the popular sauces 
          * @params None
          * @returns A list of strings, each representing popular sauces.
@@ -466,7 +473,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             }
         },
 
-        /** get_popular_combo (List API)
+        /** get_popular_combo (List API) By Keisuke Maeda
          * This API lists the popular sauces 
          * @params None
          * @returns A list of strings, each representing popular sauces.
@@ -596,19 +603,28 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             });
         },
 
-        // Returns a list of order numbers which correspond to orders made on the input date
+        /** list_orders_made_on (List API)
+         * This API lists all of the order numbers for orders made on a user-inputted date.
+         * It does not check for bad data (orders with no items).
+         * If no date is supplied, an error is returned.
+         * @params orderNumber: The order number of the order to retrieve.
+         * @returns a string array of all order numbers
+         */
         'list_orders_made_on': async (args: URLSearchParams, body: any): APIReturn<{ orderNumber: string }[]> => {
+            // Require the date
             const date = args.get('date');
             if (!date) {
-                return { err: "Date parameter is required" };
+                return { err: "Date parameter is required for listOrdersMadeOn." };
             }
 
+            // Try to get all order numbers
             try {
                 const orderNumbers = await sql<{ orderNumber: string }[]>`
                     SELECT "Order".orderNumber AS "orderNumber" FROM "Order"
                     WHERE "Order".dateOrdered = ${date}
                 `;
                 
+                // if ok, just return the orderNumbers
                 return { ok: orderNumbers };
 
             } catch (error) {
