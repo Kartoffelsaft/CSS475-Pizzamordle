@@ -538,6 +538,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             try {
                 const orderNumbers = await sql<{ orderNumber: string }[]>`
                     SELECT "Order".orderNumber AS "orderNumber" FROM "Order"
+                    WHERE "Order".dateOrdered = ${date}
                 `;
                 
                 return { ok: orderNumbers };
