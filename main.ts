@@ -580,6 +580,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
         },
         /** get_revenue_in_range (Complex Query) by Karsten Schmidt
          *  GET API returning a dollar amount ($#) for a given range, requiring both start and end dates.
+         * 
          *  This API returns the total revenue within a given range. 
          *  @params start date, end date
          *  @returns string revenue (rounded to 2 decimal places)
@@ -621,7 +622,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 pizzaRevenueQuery.forEach(pizza => {{
                     totalRevenue += Number(pizza.doughPrice as number) + Number(pizza.saucePrice as number) + Number(pizza.toppingPrice as number);
                 }});
-
+                
                 // add side revenue
                 sideRevenueQuery.forEach(side => {{
                     totalRevenue += Number(side.sidePrice as number) * Number(side.quantity as number);
