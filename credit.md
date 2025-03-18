@@ -22,10 +22,10 @@ documentation about how a given API works look at it's JSDoc/doxygen doc in
 | `get_popular_combo`       | List          | keisuke      | number of sales for each different pair of toppings |
 | `list_available_sides`    | List          | *uncredited* | all sides currently sold / recognized by the DB     |
 | `list_available_toppings` | List          | *uncredited* | all toppings currently sold / recognized by the DB  |
-| `list_available_sauces`   | List          | keisuke      | all sauces currently sold / recognized by the DB    |
-| `list_available_dough`    | List          | keisuke      | all doughs currently sold / recognized by the DB    |
-| `list_available_sizes`    | List          | keisuke      | all sizes currently sold / recognized by the DB     |
-| `daily_topping_sales`     | List          | *unfinished* | get sales of a specific topping per day             |
-| `daily_sauce_sales`       | List          | *unfinished* | get sales of a specific sauce per day               |
+| `list_available_sauces`   | List          | *uncredited* | all sauces currently sold / recognized by the DB    |
+| `list_available_dough`    | List          | *uncredited* | all doughs currently sold / recognized by the DB    |
+| `list_available_sizes`    | List          | *uncredited* | all sizes currently sold / recognized by the DB     |
+| `daily_topping_sales`     | List          | *uncredited* | get sales of a specific topping per day             |
+| `daily_sauce_sales`       | List          | *uncredited* | get sales of a specific sauce per day               |
 | `list_orders_made_on`     | List          | Jac          | get all ordernums for a particular day              |
 | `get_revenue_in_range`    | Complex Query | Karsten      | get the total revenue for a given range             |
