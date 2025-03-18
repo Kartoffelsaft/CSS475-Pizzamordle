@@ -7,6 +7,7 @@ var sauces = [];
 var dough = [];
 var sizes = [];
 
+// load all the DB's menu items client side
 fetch('/api/list_available_sides').then((response) => {
     response.json().then((avail_sides) => {
         sides = avail_sides
@@ -60,11 +61,17 @@ function fillAllSelections(what, options) {
 //                            --- ORDERING MENU ---                           //
 // -------------------------------------------------------------------------- //
 
+// Shows the ordernum for the order the user just posted
 var ordernumShown = document.getElementById('ordernum');
+// HTML DOM list of all the items the user has added
 var orderItems = document.getElementById('orderitems');
 
 /**
+ * Create an HTML <select> element with <option>s based on the list of strings
+ * given
+ *
  * @param {String[]} list
+ * @param {String} name
  * @returns {HTMLSelectElement}
  */
 function dropdownFromList(list, name) {
@@ -80,6 +87,9 @@ function dropdownFromList(list, name) {
     return ret;
 }
 
+/**
+ * Add a pizza to the orderItems list
+ */
 function addPizza() {
     let newPizza = document.createElement('li');
     newPizza.className = 'pizza'
@@ -119,6 +129,9 @@ function addPizza() {
     orderItems.appendChild(newPizza);
 }
 
+/**
+ * Add a side to the orderItems list
+ */
 function addSide() {
     let newSide = document.createElement('li');
     newSide.className = 'side';
@@ -133,6 +146,10 @@ function addSide() {
     orderItems.appendChild(newSide);
 }
 
+/**
+ * Parses the DOM in orderItems to determine the order the user wants to 
+ * submit and POSTs it to /api/create_pizza
+ */
 function submitOrder() {
     /** @type {(String|Object)[]} */
     let orderItems = [];
@@ -202,6 +219,12 @@ function cancelOrder() {
 
 var outputStatsShown = document.getElementById('outputStatsDisplay');
 
+/**
+ * Generate a table of of all the items
+ *
+ * @param {[string, number][]} items
+ * @param {string} what
+ */
 function displayPopular(items, what) {
     outputStatsShown.innerHTML = '';
 
@@ -231,6 +254,12 @@ function displayPopular(items, what) {
     outputStatsShown.appendChild(table);
 }
 
+/**
+ * Extract the user's input for the popular query, and turn it into a query 
+ * string
+ *
+ * @returns {string}
+ */
 function popularQueryParams() {
     const params = new URLSearchParams();
     params.set('limit', document.getElementById('popLimit').value);
@@ -246,6 +275,7 @@ function popularQueryParams() {
     return params.toString();
 }
 
+// buttons to query specific popularities
 function getPopularToppings() {
     fetch(
         `/api/get_popular_toppings?${popularQueryParams()}`
@@ -253,7 +283,6 @@ function getPopularToppings() {
         resp.json().then((items) => displayPopular(items, 'Topping'));
     });
 }
-
 function getPopularDough() {
     fetch(
         `/api/get_popular_dough?${popularQueryParams()}`
@@ -261,7 +290,6 @@ function getPopularDough() {
         resp.json().then((items) => displayPopular(items, 'Dough'));
     });
 }
-
 function getPopularSauce() {
     fetch(
         `/api/get_popular_sauce?${popularQueryParams()}`
@@ -269,7 +297,6 @@ function getPopularSauce() {
         resp.json().then((items) => displayPopular(items, 'Sauce'));
     });
 }
-
 function getPopularSide() {
     fetch(
         `/api/get_popular_side?${popularQueryParams()}`
@@ -277,7 +304,6 @@ function getPopularSide() {
         resp.json().then((items) => displayPopular(items, 'Side'));
     });
 }
-
 function getPopularCombo() {
     fetch(
         `/api/get_popular_combo?${popularQueryParams()}`
@@ -287,6 +313,8 @@ function getPopularCombo() {
 }
 
 /**
+ * Draws a graph of the data to the output region
+ *
  * @param {[Date, string][]} data
  */
 function displayTrend(data) {
@@ -328,6 +356,7 @@ function displayTrend(data) {
     outputStatsShown.appendChild(graphCanvas);
 }
 
+// buttons to draw the graphs for topping & sauce sales
 function getDailyToppingSales() {
     let params = new URLSearchParams();
 
@@ -349,12 +378,6 @@ function getDailyToppingSales() {
         });
     });
 }
-
-function displayError(text) {
-    const outputStatsDisplay = document.getElementById('outputStatsDisplay');
-    outputStatsDisplay.innerText = text;
-}
-
 function getDailySauceSales() {
     let params = new URLSearchParams();
 
@@ -375,6 +398,11 @@ function getDailySauceSales() {
             displayTrend(data);
         });
     });
+}
+
+function displayError(text) {
+    const outputStatsDisplay = document.getElementById('outputStatsDisplay');
+    outputStatsDisplay.innerText = text;
 }
 
 function listOrdersMadeOn() {
