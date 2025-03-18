@@ -355,7 +355,7 @@ function getDailySauceSales() {
         params.set('end', document.getElementById('sauceEndDate').value);
     }
 
-    fetch(`/api/daily_topping_sales?${params.toString()}`).then((response) => {
+    fetch(`/api/daily_sauce_sales?${params.toString()}`).then((response) => {
         response.json().then((data) => {
             data = data.map(([date, value]) => [new Date(date), value]);
             displayTrend(data);

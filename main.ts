@@ -319,13 +319,6 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             }
         },
 
-        // TODO: dummy function, implement real database connection
-        'get_latest_ordernum': async (args: URLSearchParams, body: any): APIReturn<string> => {
-            let phoneNum: String | null = args.get('phone');
-            return new Promise((resolve) => resolve({ok: '2'}));
-        },
-
-
         /**get_popular_side (Detail API) By Jac Chambers
          * This API retrieves the most popular sides from the database 
          * within a specified date range.
