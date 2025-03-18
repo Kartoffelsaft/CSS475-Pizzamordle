@@ -109,6 +109,10 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 let order: dt.Order = body;
                 let phone: string | null = args.get('phone');
 
+                if (order.length == 0) {
+                    throw new Error("Orders with no items are not allowed.");
+                }
+
                 let ordernum = 'ORD' + `${Math.floor(Math.random() * 100000000)}`;
 
                 let [orderid] = await sql.begin(async sql => { // BEGIN TRANSACTION

@@ -433,6 +433,9 @@ function listOrdersMadeOn() {
                     .then(resp => resp.json())
                     .then(order => { // Fix: Access order.contents, not orderItems
                         console.log(order.contents);
+                        if (!order.contents || order.contents.length === 0) {
+                            return; // Skip this order if there are no items
+                        }
                         let row = document.createElement('tr');
                         let itemStrings = order.contents.map(item => {
                             // if the item is a side...
@@ -455,7 +458,8 @@ function listOrdersMadeOn() {
                         `;
 
                         tableBody.appendChild(row);
-                    })
+                    }
+                )
             );
 
             Promise.all(orderFetches).then(() => {
