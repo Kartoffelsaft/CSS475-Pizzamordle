@@ -172,6 +172,11 @@ function submitOrder() {
 
     console.log(orderItems);
 
+    if (orderItems.length == 0) {
+        alert("Orders with no contents are not allowed.");
+        return;
+    }
+
     fetch("/api/create_order", {
         method: "POST",
         body: JSON.stringify(orderItems),
@@ -185,7 +190,11 @@ function submitOrder() {
 // This feels morally wrong, but we aren't calling the server 
 // before this point so it should be fine
 function cancelOrder() {
-    orderItems.innerHTML = '';
+    if (confirm("Are you sure you want to cancel this order?")) {
+        orderItems.innerHTML = '';
+    }
+    return;
+    
 }
 
 //                     --- DASHBOARD & STATS MENU ---                         //
