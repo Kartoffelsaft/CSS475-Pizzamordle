@@ -184,6 +184,9 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
         },
 
         /**get_order (Detail API) By Karsten Schmidt
+         * GET with this api with the order number as a parameter. This will return all order details, to be displayed by the front end
+         * through the datastructures defined in db.ts (pizza, toppings, souce, dough, sides, all within orderline inside of placedOrder)
+         * 
          * This API retrieves the details of a placed order from the database and gives back to 
          * the user all important details, similar to an itemized receipt.
          * @params orderNumber: The order number of the order to retrieve.
@@ -559,6 +562,22 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             } catch (error) {
                 console.log(error);
                 return { err: `Unable to get all orders made on ${date}. Try again later!` };
+            }
+        },
+        /** get_revenue_in_range
+         * 
+         */
+        'get_revenue_in_range': async (args: URLSearchParams, body: any): APIReturn<{ orderNumber: string }[]> => {
+            const start = args.get('start');
+            const end = args.get('end');
+
+            if(!start || !end){
+                return { err: "Start AND end date parameter are required" };
+            }
+            try {
+                
+            } catch (error) {
+                return { err: `Unable to get the revenue within this range` };
             }
         },
 
