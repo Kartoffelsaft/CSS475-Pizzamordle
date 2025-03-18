@@ -254,6 +254,15 @@ function displayPopular(items, what) {
     for (let [item, quantity] of items) {
         let row = document.createElement('tr');
         let itemName = item.name || (item.size + ", " + item.type) || 'Unknown Item'; // Adjust this line depending on the item structure
+        if (item.name) {
+            itemName = item.name;
+        }
+        else if (item.size && item.type) {
+            itemName = (item.size + ", " + item.type);
+        }
+        else if (item.name && item.count) {
+            itemName = (item.name + ", " + item.count);
+        }   
         row.innerHTML = `
             <tr>
             <td>${itemName}</td>
