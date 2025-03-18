@@ -416,7 +416,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
         },
 
         /** get_popular_sauce (List API) By Keisuke Maeda
-         * This API lists the popular sauces 
+         * This API lists the popular dough.
          * @params None
          * @returns A list of strings, each representing popular doughs.
          * Example: [{type: 'regular', size: 'large'}, 43],
