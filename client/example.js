@@ -253,10 +253,9 @@ function displayPopular(items, what) {
 
     for (let [item, quantity] of items) {
         let row = document.createElement('tr');
-        let itemName = item.name || (item.size + ", " + item.type) || 'Unknown Item'; // Adjust this line depending on the item structure
         row.innerHTML = `
             <tr>
-            <td>${itemName}</td>
+            <td>${item}</td>
             <td>${quantity}</td>
             </tr>
         `;
@@ -300,7 +299,10 @@ function getPopularDough() {
     fetch(
         `/api/get_popular_dough?${popularQueryParams()}`
     ).then((resp) => {
-        resp.json().then((items) => displayPopular(items, 'Dough'));
+        resp.json().then((items) => {
+            items = items.map(([dough, quantity]) => [`${dough.size} ${dough.quantity}`, quantity]);
+            displayPopular(items, 'Dough')
+        });
     });
 }
 function getPopularSauce() {
