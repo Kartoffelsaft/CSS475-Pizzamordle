@@ -104,7 +104,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
          * ```
          * prints something like "ORD0928137"
          */
-        'create_order': async (args: URLSearchParams, body: any): APIReturn<String> => {
+        'create_order': async (args: URLSearchParams, body: any): APIReturn<string> => {
             try {
                 let order: dt.Order = body;
                 let phone: string | null = args.get('phone');
@@ -599,23 +599,65 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
 
         // TODO: dummy function, implement real database connection
         'daily_topping_sales': async (args: URLSearchParams, body: any): APIReturn<dt.Trend> => {
-            return new Promise((resolve) => {
-                resolve({ok: [
-                    [new Date('2025-03-01'),  5],
-                    [new Date('2025-03-02'),  2],
-                    [new Date('2025-03-03'),  3],
-                    [new Date('2025-03-04'),  7],
-                    [new Date('2025-03-05'), 18],
-                    [new Date('2025-03-06'), 10],
-                    [new Date('2025-03-07'),  8],
-                    [new Date('2025-03-08'),  2],
-                    [new Date('2025-03-09'),  7],
-                    [new Date('2025-03-10'),  9],
-                    [new Date('2025-03-11'),  1],
-                    [new Date('2025-03-12'),  0],
-                    [new Date('2025-03-13'),  2],
-                ]});
-            });
+            try {
+                const topping = args.get('topping');
+                if (!topping) {
+                    return {err: "must request a specific topping"};
+                }
+                const start = args.get('start');
+                if (!start) {
+                    return {err: "must set a start time"};
+                }
+                const end = args.get('end');
+                if (!end) {
+                    return {err: "must set an end time"};
+                }
+
+                return {ok: (await sql`
+                    SELECT dateordered, SUM(CASE WHEN Topping.name = ${topping} THEN 1 ELSE 0 END)
+                    FROM "Order"
+                        JOIN Pizza ON Pizza.orderId = "Order".id
+                        JOIN AddedToppings ON AddedToppings.pizzaId = Pizza.id
+                        JOIN Topping ON Topping.id = AddedToppings.toppingId
+                    WHERE dateordered BETWEEN ${start} AND ${end}
+                    GROUP BY dateordered
+                    ORDER BY dateordered
+                `).map((row) => [row.dateordered, row.sum])};
+            } catch (e) {
+                console.warn(e);
+                return {err: "Unable to get daily topping sales"};
+            }
+        },
+
+        'daily_sauce_sales': async (args: URLSearchParams, body: any): APIReturn<dt.Trend> => {
+            try {
+                const sauce = args.get('sauce');
+                if (!sauce) {
+                    return {err: "must request a specific sauce"};
+                }
+                const start = args.get('start');
+                if (!start) {
+                    return {err: "must set a start time"};
+                }
+                const end = args.get('end');
+                if (!end) {
+                    return {err: "must set an end time"};
+                }
+
+                return {ok: (await sql`
+                    SELECT dateordered, SUM(CASE WHEN SauceType.name = ${sauce} THEN 1 ELSE 0 END)
+                    FROM "Order"
+                        JOIN Pizza ON Pizza.orderId = "Order".id
+                        JOIN Sauce ON Sauce.id = Pizza.sauceId
+                        JOIN SauceType ON SauceType.id = Sauce.sauceTypeID
+                    WHERE dateordered BETWEEN ${start} AND ${end}
+                    GROUP BY dateordered
+                    ORDER BY dateordered
+                `).map((row) => [row.dateordered, row.sum])};
+            } catch (e) {
+                console.warn(e);
+                return {err: "Unable to get daily topping sales"};
+            }
         },
 
         /** list_orders_made_on (List API)

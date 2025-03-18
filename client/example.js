@@ -409,7 +409,7 @@ function getDailyToppingSales() {
 function getDailySauceSales() {
     let params = new URLSearchParams();
 
-    let selectionSauce = document.getElementById('toppingName');
+    let selectionSauce = document.getElementById('sauceName');
 
     if (!selectionSauce) {
         displayError("Sauce is required for getDailySauceSales");
