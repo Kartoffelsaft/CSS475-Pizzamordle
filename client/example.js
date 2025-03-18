@@ -423,5 +423,17 @@ function listOrdersMadeOn() {
     });
 }
 
+function getRevenue() {
+    fetch(`/api/get_revenue_in_range?start=${document.getElementById('revStart').value}&end=${document.getElementById('revEnd').value}`)
+        .then((resp) => {
+            resp.text()
+                .then((totalRevenue) => {
+                    document.getElementById('revenueOutput').innerText = totalRevenue;
+                }).catch(error => {
+                    // use Jac's display error functionality
+                })
+        });
+}
+
 
 
