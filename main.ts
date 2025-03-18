@@ -467,17 +467,29 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
         */
         'get_popular_sauce': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Sauce>> => {
             try {
+                const startDate = args.get('start');
+                const endDate = args.get('end');
+                const limit = args.get('limit');
+
+                // If any of the parameters are missing, throw an error
+                if (!startDate) throw new Error('startDate is required');
+                if (!endDate) throw new Error('endDate is required');
+                if (!limit) throw new Error('limit is required');
+                
                 const result = await sql `
                     WITH PizzaSauce AS (
                         SELECT p.ID AS pizza_id, st.name AS sauce_name
                         FROM Pizza p
                         JOIN Sauce s ON p.sauceID = s.ID
                         JOIN SauceType st ON s.sauceTypeID = st.ID
-                    )'
+                        JOIN "Order" o ON p.orderID = o.ID
+                        WHERE o.dateOrdered BETWEEN ${startDate} AND ${endDate}
+                    )
                     SELECT sauce_name, COUNT(*) AS count
                     FROM PizzaSauce
                     GROUP BY sauce_name
-                    ORDER BY count DESC;`;
+                    ORDER BY count DESC
+                    LIMIT ${limit};`;
 
                 //const popularSauces: dt.Popular<dt.Sauce>= result.rows.map((row: any) => [row.sauve_name, parseInt(row.count, 10)]);
                 //return {ok: popularSauces}
@@ -500,6 +512,14 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
         */
         'get_popular_combo': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<string>> => {
             try {
+                const startDate = args.get('start');
+                const endDate = args.get('end');
+                const limit = args.get('limit');
+                // If any of the parameters are missing, throw an error
+                if (!startDate) throw new Error('startDate is required');
+                if (!endDate) throw new Error('endDate is required');
+                if (!limit) throw new Error('limit is required');
+                
                 const result = await sql `
                     WITH PizzaCombos AS (
                         SELECT p.ID as pizza_id
@@ -507,12 +527,15 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                         FROM Pizza p
                         JOIN AddedToppings at ON p.ID = at.pizzaID
                         JOIN Topping t ON at.toppingID = t.ID
+                        JOIN "Order" o ON p.orderID = o.ID
+                        WHERE o.dateOrdered BETWEEN ${startDate} AND ${endDate}
                         GROUP BY p.ID
-                    )'
+                    )
                     SELECT combo, COUNT(*) AS count
                     FROM PizzaCombos
                     GROUP BY combo
-                    ORDER BY count DESC;`;
+                    ORDER BY count DESC
+                    LIMIT ${limit};`;
 
                 return {ok: result.map((sauce: any) => [sauce.name, sauce.count])};
             } catch (error) {
