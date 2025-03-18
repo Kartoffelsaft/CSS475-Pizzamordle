@@ -450,10 +450,10 @@ function getRevenue() {
                     let revenue = parseFloat(totalRevenue[0].Revenue).toFixed(2);
                     document.getElementById('revenueOutput').innerText = revenue;
                 }).catch(error => {
-                    // use Jac's display error functionality
+                    displayError("Unable to fetch revenue. Please try again later.");
                 })
         }).catch(error => {
-            // use Jac's display error function
+            displayError("Please input valid start and end dates to get the revenue for that range. Please try again later.");
         });
 }
 
