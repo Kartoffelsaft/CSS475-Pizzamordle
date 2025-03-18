@@ -596,19 +596,28 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             });
         },
 
-        // Returns a list of order numbers which correspond to orders made on the input date
+        /** list_orders_made_on (List API)
+         * This API lists all of the order numbers for orders made on a user-inputted date.
+         * It does not check for bad data (orders with no items).
+         * If no date is supplied, an error is returned.
+         * @params orderNumber: The order number of the order to retrieve.
+         * @returns a string array of all order numbers
+         */
         'list_orders_made_on': async (args: URLSearchParams, body: any): APIReturn<{ orderNumber: string }[]> => {
+            // Require the date
             const date = args.get('date');
             if (!date) {
-                return { err: "Date parameter is required" };
+                return { err: "Date parameter is required for listOrdersMadeOn." };
             }
 
+            // Try to get all order numbers
             try {
                 const orderNumbers = await sql<{ orderNumber: string }[]>`
                     SELECT "Order".orderNumber AS "orderNumber" FROM "Order"
                     WHERE "Order".dateOrdered = ${date}
                 `;
                 
+                // if ok, just return the orderNumbers
                 return { ok: orderNumbers };
 
             } catch (error) {
