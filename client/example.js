@@ -82,10 +82,15 @@ function dropdownFromList(list, name) {
 
 function addPizza() {
     let newPizza = document.createElement('li');
-    newPizza.className = 'pizza'
+    newPizza.className = 'pizza';
 
     let deleteButton = document.createElement('button');
-    deleteButton.onclick = () => {newSide.remove();};
+    deleteButton.onclick = () => {
+        for (child in newPizza.children) {
+            child.innerHTML = '';
+        }
+        newPizza.remove();
+    };
     deleteButton.innerText = 'X';
     deleteButton.className = 'deleteButton';
     newPizza.appendChild(deleteButton);
