@@ -25,12 +25,9 @@ documentation about how a given API works look at it's JSDoc/doxygen doc in
 | `list_available_sauces`   | List          | *uncredited* | all sauces currently sold / recognized by the DB    |
 | `list_available_dough`    | List          | *uncredited* | all doughs currently sold / recognized by the DB    |
 | `list_available_sizes`    | List          | *uncredited* | all sizes currently sold / recognized by the DB     |
-<<<<<<< HEAD
 | `daily_topping_sales`     | List          | *uncredited* | get sales of a specific topping per day             |
 | `daily_sauce_sales`       | List          | *uncredited* | get sales of a specific sauce per day               |
-=======
-| `daily_topping_sales`     | List          | *unfinished* | get sales of a specific topping per day             |
-| `daily_sauce_sales`       | List          | *unfinished* | get sales of a specific sauce per day               |
->>>>>>> 6a85f8720cd13fd4539bb59c2761adbf0bb2e649
+| `daily_topping_sales`     | List          | Ben          | get sales of a specific topping per day             |
+| `daily_sauce_sales`       | List          | Ben          | get sales of a specific sauce per day               |
 | `list_orders_made_on`     | List          | Jac          | get all ordernums for a particular day              |
 | `get_revenue_in_range`    | Complex Query | Karsten      | get the total revenue for a given range             |
