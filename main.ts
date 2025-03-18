@@ -462,17 +462,37 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             }
         },
 
-        // TODO: dummy function, implement real database connection
-        'get_popular_combo': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<string>> => {
-            return new Promise((resolve) => {
-                resolve({ok: [
-                    ['pepperoni/sausage', 43],
+        /** get_popular_combo (List API)
+         * This API lists the popular sauces 
+         * @params None
+         * @returns A list of strings, each representing popular sauces.
+         * Example: ['pepperoni/sausage', 43],
                     ['ham/pineapple', 33],
                     ['broccoli/extra cheese', 20],
                     ['mushrooms/pepperoni', 5],
                     ['anchovies/pepperoni', 1],
-                ]});
-            });
+        */
+        'get_popular_combo': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<string>> => {
+            try {
+                const result = await sql `
+                    WITH PizzaCombos AS (
+                        SELECT p.ID as pizza_id
+                        string_agg(t.name, '/' ORDER BY t.name) AS combo
+                        FROM Pizza p
+                        JOIN AddedToppings at ON p.ID = at.pizzaID
+                        JOIN Topping t ON at.toppingID = t.ID
+                        GROUP BY p.ID
+                    )'
+                    SELECT combo, COUNT(*) AS count
+                    FROM PizzaCombos
+                    GROUP BY combo
+                    ORDER BY count DESC;`;
+
+                return {ok: result.map((sauce: any) => [sauce.name, sauce.count])};
+            } catch (error) {
+                console.log(error);
+                return {err: "Unable to get popular sauces. Try again later!"};
+            }
         },
 
         /** list_available_sides (List API)
