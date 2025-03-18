@@ -413,6 +413,13 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
 
         // TODO: dummy function, implement real database connection
         'get_popular_dough': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Dough>> => {
+            const get_popular_dough = await sql`SELECT dt.name AS type_name, ds.name AS size_name, COUNT(*) AS dough_count
+            FROM Pizza p
+                JOIN Dough d ON p.doughID = d.ID
+                JOIN DoughType dt ON d.doughTypeID = dt.ID
+                JOIN DoughSize ds ON d.doughSizeID = ds.ID
+            GROUP BY dt.name, ds.name
+            ORDER BY dough_count DESC;`;
             return new Promise((resolve) => {
                 resolve({ok: [
                     [{type: 'regular', size: 'large'}, 43],
@@ -426,6 +433,12 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
 
         // TODO: dummy function, implement real database connection
         'get_popular_sauce': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Sauce>> => {
+            const get_popular_sauce = await sql`SELECT st.name, COUNT(*) as sauce_count
+        FROM Pizza p 
+            JOIN Sauce s ON p.sauceIS = s.ID
+            JOIN SauceType st ON s.sauceTypeID = st.ID
+        GROUP BY st.name
+        ORDER BY sauce_count DESC;`;
             return new Promise((resolve) => {
                 resolve({ok: [
                     ['tomato', 73],
@@ -564,10 +577,14 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 return { err: `Unable to get all orders made on ${date}. Try again later!` };
             }
         },
-        /** get_revenue_in_range
-         * 
+        /** get_revenue_in_range (Complex Query) by Karsten Schmidt
+         *  GET API returning a dollar amount ($#) for 
+         *  This API lists all available dough sizes in the database for the pizza shop.
+         *  @params None
+         *  @returns A list of strings, each representing a dough size available for purchase.
+         *  Example: ['small', 'medium', 'large']
          */
-        'get_revenue_in_range': async (args: URLSearchParams, body: any): APIReturn<{ orderNumber: string }[]> => {
+        'get_revenue_in_range': async (args: URLSearchParams, body: any): APIReturn<{ Revenue: string }[]> => {
             const start = args.get('start');
             const end = args.get('end');
 
@@ -575,7 +592,42 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 return { err: "Start AND end date parameter are required" };
             }
             try {
-                
+                // pizza revenue
+                const pizzaRevenueQuery = await sql`SELECT (DS.diameterInches * DT.pricePerInch) AS "doughPrice",  
+                ST.price AS "saucePrice", T.price AS "toppingPrice" 
+                FROM Pizza P
+                    JOIN "Order" O ON (O.ID = P.orderID)
+                    JOIN Sauce S ON (P.sauceID = S.ID)
+                    JOIN SauceType ST ON (S.sauceTypeID = ST.ID)
+                    JOIN Dough D ON (P.doughID = D.ID)
+                    JOIN DoughSize DS ON (D.doughSizeID = DS.ID)
+                    JOIN DoughType DT ON (D.doughTypeID = DT.ID)
+                    JOIN AddedToppings AD ON (AD.pizzaID = P.ID)
+                    JOIN Topping T ON (T.ID = AD.toppingID)
+                WHERE O.dateOrdered BETWEEN ${start} AND ${end};`;
+
+                // side revenue
+                const sideRevenueQuery = await sql`SELECT S.price AS "sidePrice", ADS.quantity AS "quantity"
+                FROM "Order" O
+                    JOIN AddedSides ADS ON (ADS.orderID = O.ID)
+                    JOIN Side S ON (S.ID = ADS.sideID)
+                WHERE O.dateOrdered BETWEEN ${start} AND ${end};`;
+
+                // total revenue
+                let totalRevenue = 0;
+
+                pizzaRevenueQuery.forEach(pizza => {{
+                    totalRevenue += (pizza.doughPrice as number) + (pizza.saucePrice as number) + (pizza.toppingPrice as number);
+                }});
+
+                sideRevenueQuery.forEach(side => {{
+                    totalRevenue += (side.sidePrice as number) * (side.quantity as number);
+                }});
+
+                const ret_val = totalRevenue.toFixed(2);
+
+                return { ok: [{ Revenue: ret_val }] };
+
             } catch (error) {
                 return { err: `Unable to get the revenue within this range` };
             }
