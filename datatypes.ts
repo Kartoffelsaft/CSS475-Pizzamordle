@@ -33,4 +33,5 @@ export class PlacedOrder {
     contents: Order;
 }
 
-export type Popular<Item> =  [Item, Number][];
+export type Popular<Item> = [Item, number][];
+export type Trend = [Date, number][];

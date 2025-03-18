@@ -87,7 +87,7 @@
                 <h3> Sales Trends </h3>
                 <div class="statGroup">
                     <label for='toppingName'>Topping Name: </label>
-                    <input type='text' id='toppingName'> <!--TODO: This should be a dropdown -->
+                    <select class='toppings' type='text' id='toppingName'> </select>
                     <label for='topStartDate'>Start Date: </label>
                     <input type='date' id='topStartDate'>
                     <label for='topEndDate'>End Date: </label>
@@ -97,13 +97,13 @@
         
                     <br>
         
-                    <button onclick='getToppingSalesByInterval();'>Get Topping Sales</button>
+                    <button onclick='getDailyToppingSales();'>Get Topping Sales</button>
                     <ul id='toppingSales'></ul>
                 </div>
                 
                 <div class="statGroup">
                     <label for='sauceName'>Sauce Name: </label>
-                    <input type='text' id='sauceName'> <!--TODO: This should be a dropdown -->
+                    <select class='sauces' type='text' id='sauceName'> </select>
                     <label for='sauceStartDate'>Start Date: </label>
                     <input type='date' id='sauceStartDate'>
                     <label for='sauceEndDate'>End Date: </label>
@@ -113,7 +113,7 @@
         
                     <br>
         
-                    <button onclick='getSauceSalesByInterval();'>Get Sauce Sales</button>
+                    <button onclick='getDailySauceSales();'>Get Sauce Sales</button>
                     <ul id='sauceSales'></ul>
                 </div>
                 
