@@ -415,24 +415,31 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             }
         },
 
-        //  dummy function, implement real database connection
-        'get_popular_dough': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Dough>> => {
-            const get_popular_dough = await sql`SELECT dt.name AS type_name, ds.name AS size_name, COUNT(*) AS dough_count
-            FROM Pizza p
-                JOIN Dough d ON p.doughID = d.ID
-                JOIN DoughType dt ON d.doughTypeID = dt.ID
-                JOIN DoughSize ds ON d.doughSizeID = ds.ID
-            GROUP BY dt.name, ds.name
-            ORDER BY dough_count DESC;`;
-            return new Promise((resolve) => {
-                resolve({ok: [
-                    [{type: 'regular', size: 'large'}, 43],
+        /** get_popular_sauce (List API)
+         * This API lists the popular sauces 
+         * @params None
+         * @returns A list of strings, each representing popular sauces.
+         * Example: [{type: 'regular', size: 'large'}, 43],
                     [{type: 'regular', size: 'small'}, 33],
                     [{type: 'stuffed', size: 'large'}, 20],
                     [{type: 'pretzel', size: 'personal'}, 5],
                     [{type: 'pretzel', size: 'medium'}, 1],
-                ]});
-            });
+        */
+        'get_popular_dough': async (args: URLSearchParams, body: any): APIReturn<dt.Popular<dt.Dough>> => {
+            try {
+                const result = await sql `
+                    SELECT dt.name AS type_name, ds.name AS size_name, COUNT(*) AS dough_count
+                    FROM Pizza p
+                    JOIN Dough d ON p.doughID = d.ID
+                    JOIN DoughType dt ON d.doughTypeID = dt.ID
+                    JOIN DoughSize ds ON d.doughSizeID = ds.ID
+                    GROUP BY dt.name, ds.name
+                    ORDER BY dough_count  DESC;`;
+                return {ok: result.map((sauce: any) => [sauce.name, sauce.count])};
+            } catch (error) {
+                console.log(error);
+                return {err: "Unable to get popular sauces. Try again later!"};
+            }
         },
 
         /** get_popular_sauce (List API)
