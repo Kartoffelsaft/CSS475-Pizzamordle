@@ -300,7 +300,7 @@ function getPopularDough() {
         `/api/get_popular_dough?${popularQueryParams()}`
     ).then((resp) => {
         resp.json().then((items) => {
-            items = items.map(([dough, quantity]) => [`${dough.size} ${dough.quantity}`, quantity]);
+            items = items.map(([dough, quantity]) => [`${dough.size} ${dough.type}`, quantity]);
             displayPopular(items, 'Dough')
         });
     });
