@@ -426,12 +426,15 @@ function listOrdersMadeOn() {
 function getRevenue() {
     fetch(`/api/get_revenue_in_range?start=${document.getElementById('revStart').value}&end=${document.getElementById('revEnd').value}`)
         .then((resp) => {
-            resp.text()
+            resp.json()
                 .then((totalRevenue) => {
-                    document.getElementById('revenueOutput').innerText = totalRevenue;
+                    let revenue = parseFloat(totalRevenue[0].Revenue).toFixed(2);
+                    document.getElementById('revenueOutput').innerText = revenue;
                 }).catch(error => {
                     // use Jac's display error functionality
                 })
+        }).catch(error => {
+            // use Jac's display error function
         });
 }
 
