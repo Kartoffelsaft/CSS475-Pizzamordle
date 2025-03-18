@@ -585,7 +585,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
          *  @returns string revenue (rounded to 2 decimal places)
          *  Example: 20421.28
          */
-        'get_revenue_in_range': async (args: URLSearchParams, body: any): APIReturn<{ Revenue: string }[]> => {
+        'get_revenue_in_range': async (args: URLSearchParams, body: any): APIReturn<{ Revenue: number }[]> => {
             const start = args.get('start');
             const end = args.get('end');
 
@@ -616,21 +616,18 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
 
                 // total revenue
                 let totalRevenue = 0;
-
+                
                 // add pizza revenue
                 pizzaRevenueQuery.forEach(pizza => {{
-                    totalRevenue += (pizza.doughPrice as number) + (pizza.saucePrice as number) + (pizza.toppingPrice as number);
+                    totalRevenue += Number(pizza.doughPrice as number) + Number(pizza.saucePrice as number) + Number(pizza.toppingPrice as number);
                 }});
 
                 // add side revenue
                 sideRevenueQuery.forEach(side => {{
-                    totalRevenue += (side.sidePrice as number) * (side.quantity as number);
+                    totalRevenue += Number(side.sidePrice as number) * Number(side.quantity as number);
                 }});
 
-                // convert to a string to make it easier for the front end devs
-                const ret_val = totalRevenue.toFixed(2);
-
-                return { ok: [{ Revenue: ret_val }] };
+                return { ok: [{ Revenue: totalRevenue }] };
 
             } catch (error) {
                 return { err: `Unable to get the revenue within this range` };
