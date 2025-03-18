@@ -203,6 +203,13 @@ function cancelOrder() {
 var outputStatsShown = document.getElementById('outputStatsDisplay');
 
 function displayPopular(items, what) {
+    if (!items) {
+        displayError("Unknown Error: displayPopular(items, what): items was null");
+    }
+    if (!what) {
+        displayError("Unknown Error: displayPopular(items, what): what was null");
+    }
+
     outputStatsShown.innerHTML = '';
 
     let table = document.createElement('table');
@@ -290,11 +297,12 @@ function getPopularCombo() {
  * @param {[Date, string][]} data
  */
 function displayTrend(data) {
-    outputStatsShown.innerHTML = '';
     if (data.length <= 0) {
-        outputStatsShown.innerText = 'no trend data';
+        displayError('no trend data');
         return;
     }
+
+    outputStatsShown.innerHTML = '';
 
     let graphCanvas = document.createElement('canvas');
     graphCanvas.width = 400;
@@ -332,6 +340,11 @@ function getDailyToppingSales() {
     let params = new URLSearchParams();
 
     let selectionTopping = document.getElementById('toppingName');
+
+    if (!selectionTopping) {
+        displayError("Topping is required for getDailyToppingSales");
+    }
+
     params.append('topping', selectionTopping.children[selectionTopping.selectedIndex].value);
 
     if (document.getElementById('topAllTime').checked) {
@@ -358,8 +371,13 @@ function displayError(text) {
 function getDailySauceSales() {
     let params = new URLSearchParams();
 
-    let selectionTopping = document.getElementById('toppingName');
-    params.append('sauce', selectionTopping.children[selectionTopping.selectedIndex].value);
+    let selectionSauce = document.getElementById('toppingName');
+
+    if (!selectionSauce) {
+        displayError("Sauce is required for getDailySauceSales");
+    }
+
+    params.append('sauce', selectionSauce.children[selectionSauce.selectedIndex].value);
 
     if (document.getElementById('sauceAllTime').checked) {
         params.set('start', '578-01-01');
@@ -443,6 +461,10 @@ function listOrdersMadeOn() {
 }
 
 function getRevenue() {
+    if (!document.getElementById('revStart').value) {
+        displayError("Revenue start date is required for getRevenue()");
+    }
+
     fetch(`/api/get_revenue_in_range?start=${document.getElementById('revStart').value}&end=${document.getElementById('revEnd').value}`)
         .then((resp) => {
             resp.json()
