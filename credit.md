@@ -19,7 +19,7 @@ documentation about how a given API works look at it's JSDoc/doxygen doc in
 | `get_popular_toppings`    | List          | Jac          | number of sales for each different topping          |
 | `get_popular_dough`       | List          | keisuke      | number of sales for each different dough            |
 | `get_popular_sauce`       | List          | keisuke      | number of sales for each different sauce            |
-| `get_popular_combo`       | List          | *unfinished* | number of sales for each different pair of toppings |
+| `get_popular_combo`       | List          | keisuke      | number of sales for each different pair of toppings |
 | `list_available_sides`    | List          | *uncredited* | all sides currently sold / recognized by the DB     |
 | `list_available_toppings` | List          | *uncredited* | all toppings currently sold / recognized by the DB  |
 | `list_available_sauces`   | List          | keisuke      | all sauces currently sold / recognized by the DB    |

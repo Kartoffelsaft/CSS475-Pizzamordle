@@ -415,8 +415,8 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             }
         },
 
-        /** get_popular_dough (List API)
-         * This API lists the popular doughs 
+        /** get_popular_sauce (List API) By Keisuke Maeda
+         * This API lists the popular sauces 
          * @params None
          * @returns A list of strings, each representing popular doughs.
          * Example: [{type: 'regular', size: 'large'}, 43],
@@ -457,8 +457,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             }
         },
 
-
-        /** get_popular_sauce (List API)
+        /** get_popular_sauce (List API) By Keisuke Maeda
          * This API lists the popular sauces 
          * @params None
          * @returns A list of strings, each representing popular sauces.
@@ -489,7 +488,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
             }
         },
 
-        /** get_popular_combo (List API)
+        /** get_popular_combo (List API) By Keisuke Maeda
          * This API lists the popular sauces 
          * @params None
          * @returns A list of strings, each representing popular sauces.

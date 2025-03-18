@@ -498,9 +498,14 @@ function listOrdersMadeOn() {
     });
 }
 
+/** getRevenue() - Karsten
+ *  This function simply utilizes the getRevenue() API to display the total store revenue in a given range.
+ *  @param start_date, end_date
+ *  @returns revenue as a number
+ */
 function getRevenue() {
-    if (!document.getElementById('revStart').value) {
-        displayError("Revenue start date is required for getRevenue()");
+    if (!document.getElementById('revStart').value || !document.getElementById('revEnd').value) {
+        displayError("A full range of dates is required to get the revenue");
     }
 
     fetch(`/api/get_revenue_in_range?start=${document.getElementById('revStart').value}&end=${document.getElementById('revEnd').value}`)
@@ -517,5 +522,70 @@ function getRevenue() {
         });
 }
 
+/** getOrderNumber() - Karsten
+ *  This function simply utilizes the getOrderNumber() API to display the data in the statistics output for the input order
+ *  @param orderNumber 
+ *  @returns order details
+ */
+function getOrderNumber(){
+    if(!document.getElementById('getOrderWithNumber').value) {
+        displayError("This order number is invalid");
+    }
+
+    fetch(`/api/get_order?orderNumber=${document.getElementById('getOrderWithNumber').value}`)
+    .then(resp => resp.json())
+    .then(order => {
+        if (order.err) {
+            console.warn(order.err);
+            return;
+        }
+
+        console.log(order.contents);
+
+        outputStatsShown.innerHTML = '';
+
+        let table = document.createElement('table');
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th scope='col'>Order Number</th>
+                    <th scope='col'>Phone</th>
+                    <th scope='col'>Date Ordered</th>
+                    <th scope='col'>Items</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        `;
+
+        let tableBody = table.querySelector('tbody');
+
+        let row = document.createElement('tr');
+
+        let itemStrings = order.contents.map(item => {
+            if (item.quantity) {
+                return `${item.quantity}x ${item.side}`;
+            } else {
+                let description = `1x ${item.dough.size} ${item.dough.type} Pizza with ${item.sauce}`;
+                if (item.toppings && item.toppings.length > 0) {
+                    description += ', topped with ' + item.toppings.join(', ');
+                }
+                return description;
+            }
+        });
+
+        row.innerHTML = `
+            <td>${document.getElementById('getOrderWithNumber').value}</td>
+            <td>${order.phone}</td>
+            <td>${new Date(order.dateOrdered).toLocaleString()}</td>
+            <td>${itemStrings.join(', ')}</td>
+        `;
+
+        tableBody.appendChild(row);
+        outputStatsShown.appendChild(table);
+    })
+    .catch(error => {
+        displayError("Error fetching order, check your oder number again.");
+    });
+}
 
 
