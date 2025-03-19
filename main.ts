@@ -522,7 +522,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 
                 const result = await sql `
                     WITH PizzaCombos AS (
-                        SELECT p.ID as pizza_id
+                        SELECT p.ID as pizza_id,
                         string_agg(t.name, '/' ORDER BY t.name) AS combo
                         FROM Pizza p
                         JOIN AddedToppings at ON p.ID = at.pizzaID
