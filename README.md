@@ -12,3 +12,25 @@ var *may* work but is untested).
 You can use the UI at `http://localhost:8000/`.
 
 Work credit & API desciptions are listed in [credit.md](./credit.md)
+
+Note: If you cannot get make run to work for you, the longer instructions are as follows:
+```
+Load into the project directory
+
+run:
+npm i
+
+Open your console and get into postgres as the postgres user. Ensure your DB has no password, or disable it
+
+To disable the password requirement for PostgreSQL, you need to modify the pg_hba.conf file to set the authentication method to "trust" for the relevant connections. (Should be IPv4 and IPv6 labels)
+
+Run our PizzariaDB.txt file
+
+Run DB_data.txt to populate the DB
+
+Run the command npm run start 
+
+Go to localhost 8000 in your browser.
+
+Enjoy!
+```
