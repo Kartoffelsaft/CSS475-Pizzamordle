@@ -1,0 +1,30 @@
+A note from the Immordlers.
+
+Below we describe all of our files and what they do. The most important file to run our program is README.md
+
+README.md includes instructions (and backup instructions) to get our project running.
+
+All our credit for API development, driver, etc. can be found in credit.md which includes 
+a key at the bottom for extra APIs (beyond 100pt threshold) we wish to not have graded
+Credit is also redundantly found in the Deliverable #5_Final Submission.pdf, which is our final report with schema, business problem, etc.
+
+The slides we presented from are also in here under Immordlers - CSS 475 Final Project.pptx
+
+DB_data.txt is the data we filled our DB with.
+
+PizzariaDB.txt is our DB creation file.
+
+main.ts includes all of our implemented APIs, implemented in TypeScript, along with more technical documentation above each API.
+
+db.ts and datatypes.ts were files implemented in order for our main.ts to be fully functioning as intended.
+
+The client folder includes example.js dealing with API calls so our APIs work on the frontend.
+
+index.html is our frontend 
+
+styles.css is our styling for the frontend
+
+Makefile is a script attempting to create the project for you, though it sometimes doesn't work, hence the backup instructions in the README.md
+
+Thank you for a wonderful quarter, we look forward to applying what we have
+learned in this course throughout out careers!

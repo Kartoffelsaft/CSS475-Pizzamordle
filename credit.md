@@ -26,7 +26,7 @@ documentation about how a given API works look at it's JSDoc/doxygen doc in
 | `list_available_dough`    | List          | Karsten\*    | all doughs currently sold / recognized by the DB    |
 | `list_available_sizes`    | List          | Karsten\*    | all sizes currently sold / recognized by the DB     |
 | `daily_topping_sales`     | List          | Ben          | get sales of a specific topping per day             |
-| `daily_sauce_sales`       | List          | Ben          | get sales of a specific sauce per day               |
+| `daily_sauce_sales`       | List          | Ben\*        | get sales of a specific sauce per day               |
 | `list_orders_made_on`     | List          | Jac          | get all ordernums for a particular day              |
 | `get_revenue_in_range`    | Complex Query | Karsten      | get the total revenue for a given range             |
 
