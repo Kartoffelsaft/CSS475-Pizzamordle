@@ -22,7 +22,7 @@ npm i
 
 Open your console and get into postgres as the postgres user. Ensure your DB has no password, or disable it
 
-To disable the password requirement for PostgreSQL, you need to modify the pg_hba.conf file to set the authentication method to "trust" for the relevant connections. (Should be IPv4 and IPv6 labels)
+To disable the password requirement for PostgreSQL, you need to modify the pg_hba.conf file to set the authentication method to "trust" for the relevant connections. (Should be IPv4 and IPv6 labels under method at the bottom of pg_hba inside of the data folder wherever you have postgres set it from `scram-sha-256` or whatever you have to trust).
 
 Run our PizzariaDB.txt file
 
