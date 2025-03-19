@@ -330,11 +330,15 @@ function getPopularCombo() {
 /**
  * Draws a graph of the data to the output region
  *
- * @param {[Date, string][]} data
+ * @param {[Date, number][]} data
  */
 function displayTrend(data) {
     if (data.length <= 0) {
         displayError('no trend data');
+        return;
+    }
+    if (data.length <= 1) {
+        displayError('not enough trend data');
         return;
     }
 
@@ -357,15 +361,26 @@ function displayTrend(data) {
     let latest = data[data.length-1][0].valueOf();
     let timeSpan = latest - earliest;
 
-    const dateToX = (d) => (d.valueOf()-earliest) * graphCanvas.width / timeSpan;
-    const valueToY = (v) => graphCanvas.height - (v * graphCanvas.height / max);
+    const dateToX = (d) => (d.valueOf()-earliest) * (graphCanvas.width-10) / timeSpan + 5;
+    const valueToY = (v) => graphCanvas.height - (v * (graphCanvas.height-10) / max) - 5;
 
     ctx.strokeStyle = '#117';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(dateToX(data[0][0]), valueToY(data[0][1]));
-    for (let i = 1; i < data.length; i++) {
-        ctx.lineTo(dateToX(data[i][0]), valueToY(data[i][1]));
+    let i = 0;
+    for (
+        let day = new Date(data[0][0]); 
+        i < data.length; 
+        day.setDate(day.getDate()+1)
+    ) {
+        // there is no data point for this day, assume 0 sales
+        if (day.valueOf() < data[i][0].valueOf()) {
+            ctx.lineTo(dateToX(day), valueToY(0));
+        } else {
+            ctx.lineTo(dateToX(data[i][0]), valueToY(data[i][1]));
+            i++;
+        }
     }
     ctx.stroke();
 
@@ -394,7 +409,7 @@ function getDailyToppingSales() {
 
     fetch(`/api/daily_topping_sales?${params.toString()}`).then((response) => {
         response.json().then((data) => {
-            data = data.map(([date, value]) => [new Date(date), value]);
+            data = data.map(([date, value]) => [new Date(date), +value]);
             displayTrend(data);
         });
     });
@@ -420,7 +435,7 @@ function getDailySauceSales() {
 
     fetch(`/api/daily_sauce_sales?${params.toString()}`).then((response) => {
         response.json().then((data) => {
-            data = data.map(([date, value]) => [new Date(date), value]);
+            data = data.map(([date, value]) => [new Date(date), +value]);
             displayTrend(data);
         });
     });
