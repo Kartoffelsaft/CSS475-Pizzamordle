@@ -20,15 +20,16 @@ Load into the project directory
 run:
 npm i
 
-Open your console and get into postgres as the postgres user. Ensure your DB has no password, or disable it
+Open your console and get into postgres as the postgres user.
 
-To disable the password requirement for PostgreSQL, you need to modify the pg_hba.conf file to set the authentication method to "trust" for the relevant connections. (Should be IPv4 and IPv6 labels under method at the bottom of pg_hba inside of the data folder wherever you have postgres set it from `scram-sha-256` or whatever you have to trust).
+Run: 
 
-Run our PizzariaDB.txt file
+psql -U postgres -c 'DROP DATABASE popularpizza;'
+    psql -U postgres -f PizzariaDB.txt
+    psql -U postgres -f DB_data.txt -d popularpizza
 
-Run DB_data.txt to populate the DB
-
-Run the command npm run start 
+then run in your Directory where this is stored, with urpassword as your postgres password the following: 
+env PGPASSWORD=urpassword npm run start 
 
 Go to localhost 8000 in your browser.
 
