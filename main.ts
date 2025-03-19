@@ -233,8 +233,8 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                     JOIN Dough D ON (P.doughID = D.ID)
                     JOIN DoughSize DS ON (D.doughSizeID = DS.ID)
                     JOIN DoughType DT ON (D.doughTypeID = DT.ID)
-                    JOIN AddedToppings AD ON (AD.pizzaID = P.ID)
-                    JOIN Topping T ON (T.ID = AD.toppingID)
+                    LEFT JOIN AddedToppings AD ON (AD.pizzaID = P.ID)
+                    LEFT JOIN Topping T ON (T.ID = AD.toppingID)
                 WHERE orderID = (SELECT ID FROM "Order" WHERE orderNumber = ${orderNumber})
                 ORDER BY pizzaNumber;`;
 
@@ -728,6 +728,14 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                 return { err: "Start AND end date parameter are required" };
             }
             try {
+                let dateCondition;
+                if (start === end) {
+                    // If start and end are the same, query all orders from that day
+                    dateCondition = sql`DATE(O.dateOrdered) = ${start}`;
+                } else {
+                    // Otherwise, get orders within the range
+                    dateCondition = sql`O.dateOrdered BETWEEN ${start} AND ${end}`;
+                }
                 // pizza revenue
                 const pizzaRevenueQuery = await sql`SELECT (DS.diameterInches * DT.pricePerInch) AS "doughPrice",  
                 ST.price AS "saucePrice", T.price AS "toppingPrice" 
@@ -738,9 +746,9 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                     JOIN Dough D ON (P.doughID = D.ID)
                     JOIN DoughSize DS ON (D.doughSizeID = DS.ID)
                     JOIN DoughType DT ON (D.doughTypeID = DT.ID)
-                    JOIN AddedToppings AD ON (AD.pizzaID = P.ID)
-                    JOIN Topping T ON (T.ID = AD.toppingID)
-                WHERE O.dateOrdered BETWEEN ${start} AND ${end};`;
+                    LEFT JOIN AddedToppings AD ON (AD.pizzaID = P.ID)
+                    LEFT JOIN Topping T ON (T.ID = AD.toppingID)
+                WHERE ${dateCondition};`;
 
                 // side revenue
                 const sideRevenueQuery = await sql`SELECT S.price AS "sidePrice", ADS.quantity AS "quantity"
