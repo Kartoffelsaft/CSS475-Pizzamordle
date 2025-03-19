@@ -493,7 +493,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
 
                 //const popularSauces: dt.Popular<dt.Sauce>= result.rows.map((row: any) => [row.sauve_name, parseInt(row.count, 10)]);
                 //return {ok: popularSauces}
-                return {ok: result.map((sauce: any) => [sauce.name, sauce.count])};
+                return {ok: result.map((sauce: any) => [sauce.sauce_name, sauce.count])};
             } catch (error) {
                 console.log(error);
                 return {err: "Unable to get popular sauces. Try again later!"};
@@ -537,7 +537,7 @@ async function apiCall(url: URL, body: any): APIReturn<any> {
                     ORDER BY count DESC
                     LIMIT ${limit};`;
 
-                return {ok: result.map((sauce: any) => [sauce.name, sauce.count])};
+                return {ok: result.map((sauce: any) => [sauce.combo, sauce.count])};
             } catch (error) {
                 console.log(error);
                 return {err: "Unable to get popular sauces. Try again later!"};
